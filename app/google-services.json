@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "155479669586",
+    "project_id": "apporgartistas",
+    "storage_bucket": "apporgartistas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:155479669586:android:26b20aa38eff4c9aefd88b",
+        "android_client_info": {
+          "package_name": "com.apporgartistas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZogIlv3q_23mi_34QZZBmLf3Axm7hwuI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:155479669586:android:438a75506d1898a0efd88b",
+        "android_client_info": {
+          "package_name": "com.catedra.apporgartistas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZogIlv3q_23mi_34QZZBmLf3Axm7hwuI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
