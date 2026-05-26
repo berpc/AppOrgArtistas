@@ -2,6 +2,7 @@ package com.catedra.apporgartistas.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -14,6 +15,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
@@ -21,13 +23,38 @@ class LoginActivity : AppCompatActivity() {
 
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPassword = findViewById<EditText>(R.id.etPassword)
+
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
 
         btnLogin.setOnClickListener {
 
-            val email = etEmail.text.toString()
-            val password = etPassword.text.toString()
+            val email = etEmail.text.toString().trim()
+            val password = etPassword.text.toString().trim()
+
+            // Validar campos vacíos
+            if (email.isEmpty() || password.isEmpty()) {
+
+                Toast.makeText(
+                    this,
+                    "Complete todos los campos",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                return@setOnClickListener
+            }
+
+            // Validar email
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+
+                Toast.makeText(
+                    this,
+                    "Ingrese un email válido",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                return@setOnClickListener
+            }
 
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener {
@@ -50,8 +77,8 @@ class LoginActivity : AppCompatActivity() {
 
                         Toast.makeText(
                             this,
-                            "Error al iniciar sesión",
-                            Toast.LENGTH_SHORT
+                            it.exception?.message,
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -62,6 +89,21 @@ class LoginActivity : AppCompatActivity() {
             startActivity(
                 Intent(this, RegisterActivity::class.java)
             )
+        }
+    }
+
+    // Mantener sesión iniciada
+    override fun onStart() {
+
+        super.onStart()
+
+        if (auth.currentUser != null) {
+
+            startActivity(
+                Intent(this, SetlistDetailActivity::class.java)
+            )
+
+            finish()
         }
     }
 }
