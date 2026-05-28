@@ -1,8 +1,8 @@
 package com.catedra.apporgartistas.data.models
-
+import java.io.Serializable
 data class Setlist(
-    val id: String,
-    val titulo: String,
-    val cantidadPartituras: Int,
-    val fecha: String
-)
+    var id: String = "", // El ID único del documento en Firebase
+    var titulo: String = "",
+    var fechaCreacion: Long = 0,
+    var partituras: List<PartituraCloud> = emptyList()
+) : Serializable

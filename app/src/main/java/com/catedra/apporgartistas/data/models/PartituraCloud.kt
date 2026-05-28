@@ -1,6 +1,6 @@
 package com.catedra.apporgartistas.data.models
-
+import java.io.Serializable
 data class PartituraCloud(
-    val url: String = "",
-    val publicId: String = ""
-)
+    var url: String = "",
+    var publicId: String = ""
+) : Serializable

@@ -5,35 +5,36 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.Setlist
 
 class SetlistAdapter(
-    private val setlists: List<Setlist>,
-    // 1. Agregamos este parámetro para recibir la acción del clic
-    private val onSetlistClick: (Setlist) -> Unit
-) : RecyclerView.Adapter<SetlistAdapter.SetlistViewHolder>() {
-
-    class SetlistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvTitulo: TextView = view.findViewById(android.R.id.text1)
-        val tvSubtitulo: TextView = view.findViewById(android.R.id.text2)
+    private var setlists: List<Setlist>,
+    private val onClick: (Setlist) -> Unit
+) : RecyclerView.Adapter<SetlistAdapter.ViewHolder>() {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvTitulo: TextView = view.findViewById(R.id.tvTituloSetlist)
+        val tvCantidad: TextView = view.findViewById(R.id.tvCantidadPartituras)
     }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SetlistViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(android.R.layout.simple_list_item_2, parent, false)
-        return SetlistViewHolder(view)
+            .inflate(R.layout.item_setlist, parent, false)
+        return ViewHolder(view)
     }
-
-    override fun onBindViewHolder(holder: SetlistViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val setlist = setlists[position]
         holder.tvTitulo.text = setlist.titulo
-        holder.tvSubtitulo.text = "${setlist.cantidadPartituras} partituras | Ensayo: ${setlist.fecha}"
+        holder.tvCantidad.text = "${setlist.partituras.size} partituras"
 
-        // 2. Le decimos a la vista que cuando la toquen, ejecute la acción
+        // Al hacer clic, disparamos la función que nos pasaron desde la Activity
         holder.itemView.setOnClickListener {
-            onSetlistClick(setlist)
+            onClick(setlist)
         }
     }
-
     override fun getItemCount() = setlists.size
+
+    fun actualizarLista(nuevaLista: List<Setlist>) {
+        setlists = nuevaLista
+        notifyDataSetChanged()
+    }
 }

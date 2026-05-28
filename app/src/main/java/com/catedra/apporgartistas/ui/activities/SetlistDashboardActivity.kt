@@ -3,49 +3,55 @@ package com.catedra.apporgartistas.ui.activities
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.Setlist
 import com.catedra.apporgartistas.ui.adapters.SetlistAdapter
+import com.catedra.apporgartistas.viewmodels.SetlistDashboardViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 class SetlistDashboardActivity : AppCompatActivity() {
+    private val viewModel: SetlistDashboardViewModel by viewModels()
+    private lateinit var adapter: SetlistAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Vas a necesitar crear un layout llamado activity_setlist_dashboard.xml
         setContentView(R.layout.activity_setlist_dashboard)
 
-        configurarLista()
+        supportActionBar?.title = "Mis Setlists"
+
         configurarBotonNuevo()
+        configurarRecyclerView()
+        observarViewModel()
+    }
+    // Usamos onResume para que, si el usuario vuelve de crear un setlist, la lista se actualice sola
+    override fun onResume() {
+        super.onResume()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        viewModel.cargarSetlists(userId)
     }
 
-    private fun configurarLista() {
+    private fun configurarRecyclerView() {
         val rvSetlists = findViewById<RecyclerView>(R.id.rvSetlists)
         rvSetlists.layoutManager = LinearLayoutManager(this)
 
-        val misSetlistsHardcodeados = listOf(
-            Setlist("1", "Gala Sinfónica de Invierno", 12, "15/06/2026"),
-            Setlist("2", "Repertorio Solista - Flauta y Saxo", 5, "22/06/2026"),
-            Setlist("3", "Ensamble de Vientos - Oberturas", 8, "01/07/2026")
-        )
-
-        // Acá le pasamos el callback (la acción del clic) al adaptador
-        val adapter = SetlistAdapter(misSetlistsHardcodeados) { setlistSeleccionado ->
-
-            // Creamos el Intent para viajar a la otra pantalla
-            val intent = Intent(this, SetlistDetailActivity::class.java)
-
-            // Le "inyectamos" los datos a la mochila del Intent
-            intent.putExtra("SETLIST_ID", setlistSeleccionado.id)
-            intent.putExtra("SETLIST_TITULO", setlistSeleccionado.titulo)
-
+        adapter = SetlistAdapter(emptyList()) {setlistSeleccionado ->
+            val intent = Intent(this, SetlistDetailActivity::class.java).apply{
+                putExtra("SETLIST_COMPLETO", setlistSeleccionado)
+            }
             startActivity(intent)
         }
-
         rvSetlists.adapter = adapter
+    }
+
+    private fun observarViewModel() {
+        viewModel.setlists.observe(this){listaSetlists ->
+            adapter.actualizarLista(listaSetlists)
+        }
     }
 
     private fun configurarBotonNuevo() {
