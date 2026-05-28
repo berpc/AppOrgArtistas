@@ -51,8 +51,8 @@ class SetlistDashboardActivity : AppCompatActivity() {
     private fun configurarBotonNuevo() {
         val btnNuevoSetlist = findViewById<Button>(R.id.btnNuevoSetlist)
         btnNuevoSetlist.setOnClickListener {
-            // A futuro esto abrirá un modal o tu AddSetlistActivity
-            Toast.makeText(this, "Acá abriremos el creador de Setlists", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, CreateSetlistActivity::class.java)
+            startActivity(intent)
         }
     }
 }
