@@ -98,4 +98,7 @@ dependencies {
     implementation(
         "androidx.camera:camera-view:1.2.3"
     )
+    implementation("com.itextpdf:itext7-core:7.2.5")
+
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }

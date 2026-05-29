@@ -7,6 +7,7 @@ import com.catedra.apporgartistas.data.models.Setlist
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 class SetlistDashboardViewModel : ViewModel() {
+
     private val firestore = FirebaseFirestore.getInstance()
 
     private val _setlists = MutableLiveData<List<Setlist>>()

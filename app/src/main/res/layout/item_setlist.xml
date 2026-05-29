@@ -13,6 +13,23 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#000000" />
+    <TextView
+        android:id="@+id/tvNombreGrupo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/tvUbicacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:drawablePadding="4dp"
+        android:layout_marginTop="2dp" />
+
 
     <TextView
         android:id="@+id/tvCantidadPartituras"

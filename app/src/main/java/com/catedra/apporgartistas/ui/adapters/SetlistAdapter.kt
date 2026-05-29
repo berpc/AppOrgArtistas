@@ -8,13 +8,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.Setlist
 
+
 class SetlistAdapter(
     private var setlists: List<Setlist>,
     private val onClick: (Setlist) -> Unit
 ) : RecyclerView.Adapter<SetlistAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitulo: TextView = view.findViewById(R.id.tvTituloSetlist)
+        val tvNombreGrupo: TextView = view.findViewById(R.id.tvNombreGrupo)
+        val tvUbicacion: TextView = view.findViewById(R.id.tvUbicacion)
         val tvCantidad: TextView = view.findViewById(R.id.tvCantidadPartituras)
+
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -24,6 +28,8 @@ class SetlistAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val setlist = setlists[position]
         holder.tvTitulo.text = setlist.titulo
+        holder.tvNombreGrupo.text = setlist.nombreGrupo
+        holder.tvUbicacion.text = setlist.ubicacion
         holder.tvCantidad.text = "${setlist.partituras.size} partituras"
 
         // Al hacer clic, disparamos la función que nos pasaron desde la Activity

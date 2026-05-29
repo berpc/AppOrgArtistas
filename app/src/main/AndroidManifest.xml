@@ -2,7 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Permisos -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:name=".App"
@@ -15,25 +18,53 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppOrgArtistas">
 
+        <!-- Main -->
         <activity
             android:name=".ui.activities.MainActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
         </activity>
+
+        <!-- Login -->
         <activity
             android:name=".activities.LoginActivity"
-            android:exported="false" />
-        <activity android:name=".ui.activities.RegisterActivity" />
-        <activity android:name=".ui.activities.SetlistDetailActivity" />
+            android:exported="false"/>
+
+        <!-- Register -->
+        <activity
+            android:name=".ui.activities.RegisterActivity"
+            android:exported="false"/>
+
+        <!-- Dashboard -->
+        <activity
+            android:name=".ui.activities.SetlistDashboardActivity"
+            android:exported="false"/>
+
+        <!-- Crear -->
+        <activity
+            android:name=".ui.activities.CreateSetlistActivity"
+            android:exported="false"/>
+
+        <!-- Detalle -->
+        <activity
+            android:name=".ui.activities.SetlistDetailActivity"
+            android:exported="false"/>
+        <!-- camara -->
+        <activity
+            android:name=".activities.CameraActivity"
+            android:exported="false"/>
+
+        <!-- PDF -->
         <activity
             android:name=".ui.activities.PdfViewerActivity"
-            android:parentActivityName=".ui.activities.SetlistDetailActivity" />
-        <activity android:name=".ui.activities.CreateSetlistActivity" />
-        <activity android:name=".ui.activities.SetlistDashboardActivity" />
+            android:exported="false"
+            android:parentActivityName=".ui.activities.SetlistDetailActivity"/>
+
     </application>
 
 </manifest>

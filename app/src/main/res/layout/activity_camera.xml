@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5"
+    android:padding="16dp">
+
+    <!-- Título -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Capturar Partitura"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="#222222" />
+
+    <!-- Subtitulo -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Tomá una foto para convertirla en PDF"
+        android:textSize="14sp"
+        android:textColor="#777777" />
+
+    <!-- Vista previa -->
+    <ImageView
+        android:id="@+id/ivPreview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="20dp"
+        android:background="#E0E0E0"
+        android:padding="8dp"
+        android:scaleType="fitCenter" />
+
+    <!-- Botón foto -->
+    <Button
+        android:id="@+id/btnCapturar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#6B4EFF"
+        android:text="Tomar Foto"
+        android:textColor="#FFFFFF" />
+
+    <!-- Botón usar -->
+    <Button
+        android:id="@+id/btnSubir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="#4CAF50"
+        android:text="Usar esta Foto"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>

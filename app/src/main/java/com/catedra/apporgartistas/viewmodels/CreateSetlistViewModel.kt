@@ -30,7 +30,7 @@ class CreateSetlistViewModel : ViewModel() {
         _pdfsSeleccionados.value = listaActual + uri
     }
 
-    fun guardarSetlist(titulo: String, userId: String){
+    fun guardarSetlist(titulo: String, nombreGrupo: String, ubicacion: String, userId: String){
         val archivos = _pdfsSeleccionados.value ?: emptyList()
         if (titulo.isBlank() || archivos.isEmpty()) return
 
@@ -52,7 +52,7 @@ class CreateSetlistViewModel : ViewModel() {
 
                         // 3. Chequeamos si ya terminamos de subir el último PDF
                         if (subidasCompletadas == archivos.size) {
-                            crearDocumentoEnFirestore(userId, titulo, partiturasSubidas)
+                            crearDocumentoEnFirestore(userId, titulo,nombreGrupo, ubicacion,partiturasSubidas)
                         }
                     }
                 },
@@ -66,9 +66,12 @@ class CreateSetlistViewModel : ViewModel() {
         }
     }
 
-    private fun crearDocumentoEnFirestore(userId: String, titulo: String, partituras: List<PartituraCloud>){
+    private fun crearDocumentoEnFirestore(userId: String, titulo: String,nombreGrupo: String,
+                                          ubicacion: String, partituras: List<PartituraCloud>){
         val datosSetlist = hashMapOf(
             "titulo" to titulo,
+            "nombreGrupo" to nombreGrupo,
+            "ubicacion" to ubicacion,
             "fechaCreacion" to System.currentTimeMillis(),
             "partituras" to partituras
         )

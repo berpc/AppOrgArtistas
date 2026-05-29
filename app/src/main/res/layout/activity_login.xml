@@ -14,11 +14,13 @@
 
         <!-- Ícono música -->
         <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginTop="60dp"
-            android:src="@android:drawable/ic_media_play"
-            android:contentDescription="Logo" />
+            android:id="@+id/imgLogo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="40dp"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="Logo App"
+            android:layout_gravity="center" />
 
         <!-- Bienvenido/a -->
         <TextView

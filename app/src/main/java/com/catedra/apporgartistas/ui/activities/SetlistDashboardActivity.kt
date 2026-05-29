@@ -12,9 +12,15 @@ import com.catedra.apporgartistas.data.models.Setlist
 import com.catedra.apporgartistas.ui.adapters.SetlistAdapter
 import com.catedra.apporgartistas.viewmodels.SetlistDashboardViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.catedra.apporgartistas.activities.LoginActivity
+import com.catedra.apporgartistas.viewmodels.LoginViewModel
+
+
 
 class SetlistDashboardActivity : AppCompatActivity() {
     private val viewModel: SetlistDashboardViewModel by viewModels()
+
+    private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var adapter: SetlistAdapter
 
 
@@ -25,6 +31,7 @@ class SetlistDashboardActivity : AppCompatActivity() {
         supportActionBar?.title = "Mis Setlists"
 
         configurarBotonNuevo()
+        configurarBotonLogout()
         configurarRecyclerView()
         observarViewModel()
     }
@@ -59,6 +66,15 @@ class SetlistDashboardActivity : AppCompatActivity() {
         btnNuevoSetlist.setOnClickListener {
             val intent = Intent(this, CreateSetlistActivity::class.java)
             startActivity(intent)
+        }
+    }
+    private fun configurarBotonLogout() {
+        val btnLogout = findViewById<Button>(R.id.btnLogout)
+        btnLogout.setOnClickListener {
+            loginViewModel.logout()
+            startActivity(Intent(this, LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            })
         }
     }
 }

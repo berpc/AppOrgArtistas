@@ -45,5 +45,12 @@ class LoginViewModel : ViewModel() {
                 }
             }
     }
+        fun logout() {
+            auth.signOut()
+            _loginState.value = LoginState.Idle
+        }
 
-}
+    }
+
+
+
