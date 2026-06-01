@@ -73,7 +73,8 @@ class CreateSetlistViewModel : ViewModel() {
             "nombreGrupo" to nombreGrupo,
             "ubicacion" to ubicacion,
             "fechaCreacion" to System.currentTimeMillis(),
-            "partituras" to partituras
+            "partituras" to partituras,
+            "isActive" to true
         )
 
         firestore.collection("usuarios").document(userId)
