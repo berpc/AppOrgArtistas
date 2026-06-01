@@ -18,6 +18,7 @@ class SetlistDashboardViewModel : ViewModel() {
 
         firestore.collection("usuarios").document(userId)
             .collection("setlists")
+            .whereEqualTo("isActive", true)
             .orderBy("fechaCreacion", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { snapshot ->
@@ -41,6 +42,21 @@ class SetlistDashboardViewModel : ViewModel() {
             }
             .addOnFailureListener { e ->
                 Log.e("Dashboard", "Error al conectarse a Firestore", e)
+            }
+    }
+    // soft delete
+    fun ocultarSetlist(userId: String, setlistId: String) {
+        firestore.collection("usuarios").document(userId)
+            .collection("setlists").document(setlistId)
+            // Actualizamos el flag a false
+            .update("isActive", false)
+            .addOnSuccessListener {
+                Log.d("Dashboard", "Setlist ocultado con éxito")
+                // Recargamos la lista para que desaparezca de la UI
+                cargarSetlists(userId)
+            }
+            .addOnFailureListener { e ->
+                Log.e("Dashboard", "Error al ocultar setlist", e)
             }
     }
 }

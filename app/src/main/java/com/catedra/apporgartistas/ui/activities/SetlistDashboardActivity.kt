@@ -2,9 +2,12 @@ package com.catedra.apporgartistas.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode // OJO: Importá la de androidx.appcompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.catedra.apporgartistas.R
@@ -14,20 +17,50 @@ import com.catedra.apporgartistas.viewmodels.SetlistDashboardViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.catedra.apporgartistas.activities.LoginActivity
 import com.catedra.apporgartistas.viewmodels.LoginViewModel
+import androidx.appcompat.app.AlertDialog
 
 
 
 class SetlistDashboardActivity : AppCompatActivity() {
     private val viewModel: SetlistDashboardViewModel by viewModels()
-
     private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var adapter: SetlistAdapter
+
+    // Variables para el modo de selección
+    private var actionMode: ActionMode? = null
+    private var setlistSeleccionadoParaBorrar: Setlist? = null
+
+    private val actionModeCallback = object : ActionMode.Callback {
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            // Inflamos el tachito de basura
+            mode.menuInflater.inflate(R.menu.menu_borrar_setlist, menu)
+            mode.title = "1 seleccionado"
+            return true
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean = false
+
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            return when (item.itemId) {
+                R.id.action_delete -> {
+                    confirmarBorrado(mode)
+                    true
+                }
+                else -> false
+            }
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode) {
+            actionMode = null
+            setlistSeleccionadoParaBorrar = null
+            // Acá podrías decirle al adapter que quite el resaltado de fondo si lo tuvieras
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setlist_dashboard)
-
         supportActionBar?.title = "Mis Setlists"
 
         configurarBotonNuevo()
@@ -46,12 +79,25 @@ class SetlistDashboardActivity : AppCompatActivity() {
         val rvSetlists = findViewById<RecyclerView>(R.id.rvSetlists)
         rvSetlists.layoutManager = LinearLayoutManager(this)
 
-        adapter = SetlistAdapter(emptyList()) {setlistSeleccionado ->
-            val intent = Intent(this, SetlistDetailActivity::class.java).apply{
-                putExtra("SETLIST_COMPLETO", setlistSeleccionado)
+        adapter = SetlistAdapter(
+            setlists = emptyList(),
+            onItemClick = { setlistSeleccionado ->
+                // Si el modo de borrado está activo, un clic normal podría seleccionarlo también
+                if (actionMode == null) {
+                    val intent = Intent(this, SetlistDetailActivity::class.java).apply {
+                        putExtra("SETLIST_COMPLETO", setlistSeleccionado)
+                    }
+                    startActivity(intent)
+                }
+            },
+            onItemLongClick = { setlistSeleccionado ->
+                if (actionMode == null) {
+                    setlistSeleccionadoParaBorrar = setlistSeleccionado
+                    // Arrancamos la barra de menú contextual
+                    actionMode = startSupportActionMode(actionModeCallback)
+                }
             }
-            startActivity(intent)
-        }
+        )
         rvSetlists.adapter = adapter
     }
 
@@ -76,5 +122,21 @@ class SetlistDashboardActivity : AppCompatActivity() {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             })
         }
+    }
+    private fun confirmarBorrado(mode: ActionMode) {
+        val setlist = setlistSeleccionadoParaBorrar ?: return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        AlertDialog.Builder(this)
+            .setTitle("Borrar Setlist")
+            .setMessage("¿Estás seguro de que querés borrar '${setlist.titulo}'?")
+            .setPositiveButton("Borrar") { _, _ ->
+                viewModel.ocultarSetlist(userId, setlist.id)
+                mode.finish() // Cierra la barra de borrado
+            }
+            .setNegativeButton("Cancelar") { _, _ ->
+                mode.finish()
+            }
+            .show()
     }
 }

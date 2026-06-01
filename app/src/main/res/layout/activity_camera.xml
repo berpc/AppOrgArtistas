@@ -26,15 +26,14 @@
         android:textColor="#777777" />
 
     <!-- Vista previa -->
-    <ImageView
-        android:id="@+id/ivPreview"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPreviewFotos"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="20dp"
-        android:background="#E0E0E0"
+        android:orientation="vertical"
         android:padding="8dp"
-        android:scaleType="fitCenter" />
+        android:clipToPadding="false" />
 
     <!-- Botón foto -->
     <Button
@@ -53,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:backgroundTint="#4CAF50"
-        android:text="Usar esta Foto"
+        android:text="Guardar"
         android:textColor="#FFFFFF" />
 
 </LinearLayout>

@@ -11,7 +11,8 @@ import com.catedra.apporgartistas.data.models.Setlist
 
 class SetlistAdapter(
     private var setlists: List<Setlist>,
-    private val onClick: (Setlist) -> Unit
+    private val onItemClick: (Setlist) -> Unit,
+    private val onItemLongClick: (Setlist) -> Unit
 ) : RecyclerView.Adapter<SetlistAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitulo: TextView = view.findViewById(R.id.tvTituloSetlist)
@@ -34,7 +35,11 @@ class SetlistAdapter(
 
         // Al hacer clic, disparamos la función que nos pasaron desde la Activity
         holder.itemView.setOnClickListener {
-            onClick(setlist)
+            onItemClick(setlist)
+        }
+        holder.itemView.setOnLongClickListener {
+            onItemLongClick(setlist)
+            true // Retornar true indica que consumimos el evento y no dispara el clic normal
         }
     }
     override fun getItemCount() = setlists.size
