@@ -100,10 +100,7 @@ class SetlistDetailActivity : AppCompatActivity() {
     private fun configurarListaDePartituras(setlist: Setlist) {
         listView = findViewById(R.id.lvPartituras)
 
-        // Hacemos que sea MutableList para poder borrar elementos de la UI
-        titulosVisuales = setlist.partituras.mapIndexed { index, _ ->
-            "Partitura ${index + 1}"
-        }.toMutableList()
+        titulosVisuales = setlist.partituras.map { it.nombre }.toMutableList()
 
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, titulosVisuales)
         listView.adapter = adapter
@@ -157,9 +154,12 @@ class SetlistDetailActivity : AppCompatActivity() {
     }
     private fun actualizarListaVisual() {
         titulosVisuales.clear()
-        setlistActual?.partituras?.forEachIndexed { index, _ ->
-            titulosVisuales.add("Partitura ${index + 1}")
+
+        setlistActual?.partituras?.forEach { partitura ->
+            val nombreAMostrar = if (partitura.nombre.isNotBlank()) partitura.nombre else "Partitura sin nombre"
+            titulosVisuales.add(nombreAMostrar)
         }
+
         adapter.notifyDataSetChanged()
     }
 

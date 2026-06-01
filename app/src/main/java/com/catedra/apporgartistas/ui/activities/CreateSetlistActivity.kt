@@ -17,6 +17,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationServices
+import androidx.core.net.toUri
 
 
 class CreateSetlistActivity : AppCompatActivity() {
@@ -27,8 +28,8 @@ class CreateSetlistActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             val uriString = result.data?.getStringExtra("PDF_CAPTURADO")
             if (uriString != null) {
-                viewModel.agregarPdfLocal(Uri.parse(uriString))
-                Toast.makeText(this, "Foto agregada como PDF", Toast.LENGTH_SHORT).show()
+                // Al sacar foto, le damos un nombre genérico para que el usuario lo cambie
+                pedirNombrePartitura(uriString.toUri(), "Foto Partitura")
             }
         }
     }
@@ -37,9 +38,10 @@ class CreateSetlistActivity : AppCompatActivity() {
 
     private val selectorDePdf = registerForActivityResult(ActivityResultContracts.GetContent()){ uri: Uri? ->
         if (uri != null) {
-            viewModel.agregarPdfLocal(uri)
+            // Obtenemos el nombre real del archivo PDF
+            val nombreOriginal = obtenerNombreDelArchivo(uri)
+            pedirNombrePartitura(uri, nombreOriginal)
         }
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?){
@@ -66,9 +68,9 @@ class CreateSetlistActivity : AppCompatActivity() {
         }
 
         //Observamos el ViewModel para actualizar la pantalla
-        viewModel.pdfsSeleccionados.observe(this) { listaUris ->
-            if (listaUris.isNotEmpty()) {
-                tvArchivos.text = "${listaUris.size} archivo(s) listo(s) para subir"
+        viewModel.archivosSeleccionados.observe(this) { listaArchivos ->
+            if (listaArchivos.isNotEmpty()) {
+                tvArchivos.text = "${listaArchivos.size} archivo(s) listo(s) para subir"
             }
         }
         viewModel.guardadoExitoso.observe(this) { exito ->
@@ -145,13 +147,53 @@ class CreateSetlistActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (viewModel.pdfsSeleccionados.value.isNullOrEmpty()) {
-                Toast.makeText(this, "Subí al menos un PDF", Toast.LENGTH_SHORT).show()
+            // ACÁ ESTÁ EL CAMBIO
+            if (viewModel.archivosSeleccionados.value.isNullOrEmpty()) {
+                Toast.makeText(this, "Subí al menos un PDF o foto", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             Toast.makeText(this, "Subiendo archivos, por favor esperá...", Toast.LENGTH_SHORT).show()
-            viewModel.guardarSetlist(titulo,nombreGrupo, ubicacion,userId)
+            viewModel.guardarSetlist(titulo, nombreGrupo, ubicacion, userId)
         }
+    }
+    @android.annotation.SuppressLint("Range")
+    private fun obtenerNombreDelArchivo(uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME))
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.path?.let { path ->
+                val cut = path.lastIndexOf('/')
+                if (cut != -1) path.substring(cut + 1) else path
+            }
+        }
+        // Le sacamos la extensión .pdf si la tiene para que quede más limpio
+        return result?.substringBeforeLast(".") ?: "Nueva Partitura"
+    }
+
+    // 2. Mostrar el cuadro de diálogo para editar el nombre
+    private fun pedirNombrePartitura(uri: Uri, nombreSugerido: String) {
+        val input = EditText(this)
+        input.setText(nombreSugerido)
+        input.setSelection(input.text.length) // Pone el cursor al final
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Nombre de la Partitura")
+            .setMessage("Verificá o editá el nombre de la partitura:")
+            .setView(input)
+            .setCancelable(false)
+            .setPositiveButton("Agregar") { _, _ ->
+                val nombreFinal = input.text.toString().ifBlank { nombreSugerido }
+                viewModel.agregarPdfLocal(uri, nombreFinal)
+                Toast.makeText(this, "Agregada: $nombreFinal", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 }
