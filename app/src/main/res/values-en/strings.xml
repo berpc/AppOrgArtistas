@@ -1,2 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+        <string name="app_name">AppOrgArtistas</string>
+        <!-- Strings used for fragments for navigation -->
+        <string name="first_fragment_label">First Fragment</string>
+        <string name="second_fragment_label">Second Fragment</string>
+        <string name="next">Next</string>
+        <string name="previous">Previous</string>
+        <string name="coordenadas">Lat: %1$s | Lng: %2$s</string>
+        <string name="tomar_foto">Capture Page</string>
+        <string name="ingresar_titulo">Enter a title</string>
+        <string name="subir_pdf">Upload PDF</string>
+        <string name="crear_setlist">Create Setlist</string>
+        <string name="pages_in_queue">Pages in queue: %1$d</string>
+        <string name="logo_app">App Logo</string>
+        <string name="org_artistas">OrgArtistas</string>
+        <string name="bienvenido">Welcome</string>
+        <string name="login_subtitle">Sign in to continue</string>
+        <string name="email">Email</string>
+        <string name="password">Password</string>
+        <string name="login">Sign in</string>
+        <string name="no_account">Don\'t have an account? Sign up</string>
+
+        <string name="lorem_ipsum">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
+        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
+        dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad
+        litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse blandit eleifend
+        diam, vel rutrum tellus vulputate quis. Aliquam eget libero aliquet, imperdiet nisl a,
+        ornare ex. Sed rhoncus est ut libero porta lobortis. Fusce in dictum tellus.\n\n
+        Suspendisse interdum ornare ante. Aliquam nec cursus lorem. Morbi id magna felis. Vivamus
+        egestas, est a condimentum egestas, turpis nisl iaculis ipsum, in dictum tellus dolor sed
+        neque. Morbi tellus erat, dapibus ut sem a, iaculis tincidunt dui. Interdum et malesuada
+        fames ac ante ipsum primis in faucibus. Curabitur et eros porttitor, ultricies urna vitae,
+        molestie nibh. Phasellus at commodo eros, non aliquet metus. Sed maximus nisl nec dolor
+        bibendum, vel congue leo egestas.\n\n
+        Sed interdum tortor nibh, in sagittis risus mollis quis. Curabitur mi odio, condimentum sit
+        amet auctor at, mollis non turpis. Nullam pretium libero vestibulum, finibus orci vel,
+        molestie quam. Fusce blandit tincidunt nulla, quis sollicitudin libero facilisis et. Integer
+        interdum nunc ligula, et fermentum metus hendrerit id. Vestibulum lectus felis, dictum at
+        lacinia sit amet, tristique id quam. Cras eu consequat dui. Suspendisse sodales nunc ligula,
+        in lobortis sem porta sed. Integer id ultrices magna, in luctus elit. Sed a pellentesque
+        est.\n\n
+        Aenean nunc velit, lacinia sed dolor sed, ultrices viverra nulla. Etiam a venenatis nibh.
+        Morbi laoreet, tortor sed facilisis varius, nibh orci rhoncus nulla, id elementum leo dui
+        non lorem. Nam mollis ipsum quis auctor varius. Quisque elementum eu libero sed commodo. In
+        eros nisl, imperdiet vel imperdiet et, scelerisque a mauris. Pellentesque varius ex nunc,
+        quis imperdiet eros placerat ac. Duis finibus orci et est auctor tincidunt. Sed non viverra
+        ipsum. Nunc quis augue egestas, cursus lorem at, molestie sem. Morbi a consectetur ipsum, a
+        placerat diam. Etiam vulputate dignissim convallis. Integer faucibus mauris sit amet finibus
+        convallis.\n\n
+        Phasellus in aliquet mi. Pellentesque habitant morbi tristique senectus et netus et
+        malesuada fames ac turpis egestas. In volutpat arcu ut felis sagittis, in finibus massa
+        gravida. Pellentesque id tellus orci. Integer dictum, lorem sed efficitur ullamcorper,
+        libero justo consectetur ipsum, in mollis nisl ex sed nisl. Donec maximus ullamcorper
+        sodales. Praesent bibendum rhoncus tellus nec feugiat. In a ornare nulla. Donec rhoncus
+        libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
+        vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
+    </string>
+        <string name="new_partitura">New Score</string>
+        <string name="default_create_foto_partitura">Score Photo</string>
+        <string name="default_create_pdf_capturado">CAPTURED_PDF</string>
+        <string name="message_create_archivos_listos_para_subir">%1$d files ready to upload</string>
+        <string name="message_create_setlist_creado_con_xito">Setlist created successfully!</string>
+        <string name="message_create_hubo_un_error_al_guardar">There was an error saving.</string>
+        <string name="message_create_no_se_pudo_obtener_ubicaci_n">Could not get location</string>
+        <string name="default_create_usuario_anonimo">anonymous_user</string>
+        <string name="message_create_ingresa_un_titulo">Enter a title</string>
+        <string name="message_create_ingresa_el_nombre_del_grupo">Enter the group name</string>
+        <string name="message_create_ingresa_una_ubicacion">Enter a location</string>
+        <string name="message_create_subi_al_menos_un_pdf_o_foto">Upload at least one PDF or photo</string>
+        <string name="message_create_subiendo_archivos_por_favor_espera">Uploading files, please wait...</string>
+        <string name="default_create_nombre_de_la_partitura">Score Name</string>
+        <string name="message_create_verifica_o_edita_el_nombre_de_la_partitura">Verify or edit the score name:</string>
+        <string name="btn_create_agregar">Add</string>
+        <string name="message_create_agregada">Added: %1$s</string>
+        <string name="btn_create_cancelar">Cancel</string>
+        <string name="default_pdfviewer_pdf_url">PDF_URL</string>
+        <string name="default_pdfviewer_obra_titulo">WORK_TITLE</string>
+        <string name="default_pdf_partitura">Score</string>
+        <string name="message_register_completa_todos_los_campos">Please fill in all fields</string>
+        <string name="message_register_las_contrasenias_no_coinciden">Passwords do not match</string>
+        <string name="message_register_la_contrasenia_debe_tener_al_menos_6_caracteres">Password must be at least 6 characters</string>
+        <string name="message_register_cuenta_creada_exitosamente">Account created successfully!</string>
+        <string name="hint_dashboard_ej_a7x9bq">E.g.: A7X9BQ</string>
+        <string name="alerttitle_dashboard_unirse_a_un_setlist">Join a Setlist</string>
+        <string name="message_dashboard_ingresa_el_codigo_de_6_caracteres_que_te_compartio_el_director">Enter the 6-character code shared by the director:</string>
+        <string name="btn_dashboard_unirse">Join</string>
+        <string name="message_dashboard_el_codigo_debe_tener_exactamente_6_caracteres">The code must be exactly 6 characters</string>
+        <string name="btn_dashboard_cancelar">Cancel</string>
+        <string name="title_dashboard_1_seleccionado">1 selected</string>
+        <string name="title_dashboard_mis_setlists">My Setlists</string>
+        <string name="message_dashboard_te_uniste_al_setlist_con_xito">You joined the setlist successfully!</string>
+        <string name="title_dashboard_borrar_setlist">Delete Setlist</string>
+        <string name="message_dashboard_estas_seguro_de_que_queres_borrar">Are you sure you want to delete \'%1$s\'?</string>
+        <string name="btn_dashboard_borrar">Delete</string>
+        <string name="default_detail_foto_partitura">Score Photo</string>
+        <string name="message_detail_error_al_cargar_setlist">Error loading Setlist</string>
+        <string name="message_detail_setlist_actualizado">Setlist updated</string>
+        <string name="message_detail_no_tenes_partituras_en_la_nube">You have no scores in the cloud.</string>
+        <string name="title_detail_tu_repertorio_en_la_nube">Your Cloud Repertoire</string>
+        <string name="message_detail_vinculando">Linking...</string>
+        <string name="btn_detail_cancelar">Cancel</string>
+        <string name="default_detail_seleccionados">%1$d selected</string>
+        <string name="default_detail_partitura_sin_nombre">Unnamed score</string>
+        <string name="option_detail_subir_pdf_desde_el_celular">Upload PDF from phone</string>
+        <string name="option_detail_tomar_foto_con_la_camara">Take photo with camera</string>
+        <string name="default_detail_elegir_partitura_de_la_nube">Choose score from cloud</string>
+        <string name="title_detail_agregar_partitura">Add Score</string>
+        <string name="message_detail_buscando">Searching...</string>
+        <string name="title_detail_nombre_de_la_partitura">Score Name</string>
+        <string name="btn_detail_subir">Upload</string>
+        <string name="message_detail_subiendo">Uploading...</string>
+        <string name="activityCamera_capturar_partitura">Capture Score</string>
+        <string name="activity_camera_toma_una_foto_para_convertirla_en_pdf">Take a photo to convert it to PDF</string>
+        <string name="activity_camera_tomar_foto">Take Photo</string>
+        <string name="btn_activity_camera_guardar">Save</string>
+        <string name="title_activity_create_nuevo_setlist">New Setlist</string>
+        <string name="subtitle_activity_create_carga_tus_partituras_y_datos_del_evento">Upload your scores and event details</string>
+        <string name="text_create_ubicacion_del_evento">Event location</string>
+        <string name="btn_activity_create_obtener_ubicacion_actual">Get current location</string>
+        <string name="btn_activity_createsubir_pdf">Upload PDF</string>
+        <string name="btn_activity_create_tomar_foto">Take Photo</string>
+        <string name="btn_activity_create_ningun_archivo_seleccionado">No file selected</string>
+        <string name="btn_activity_create_crear_setlist">Create Setlist</string>
+        <string name="title_login_bienvenido_a">Welcome</string>
+        <string name="title_login_inicia_sesion_para_continuar">Sign in to continue</string>
+        <string name="hint_login_email">Email</string>
+        <string name="hint_login_contrasenia">Password</string>
+        <string name="btn_login_iniciar_sesion">Sign in</string>
+        <string name="btn_login_no_tenes_cuenta_registrate">Don\'t have an account? Sign up</string>
+        <string name="loading_pdfviewer_cargando_partitura">Loading score...</string>
+        <string name="btn_register_volver">Back</string>
+        <string name="tv_register_crear_cuenta">Create account</string>
+        <string name="tv_register_completa_los_datos_para_registrarte">Fill in your details to sign up</string>
+        <string name="hint_register_nombre">Name</string>
+        <string name="hint_register_email">Email</string>
+        <string name="hint_register_contrasenia">Password</string>
+        <string name="et_register_confirmar_contrasenia">Confirm password</string>
+        <string name="btn_register_registrarme">Sign up</string>
+        <string name="tv_dashboard_organiza_tus_partituras_y_canciones">Organize your scores and songs</string>
+        <string name="btn_dashboard_crear_nuevo_setlist">Create New Setlist</string>
+        <string name="btn_dashboard_unirse_a_un_setlist_con_c_digo">Join a Setlist with Code</string>
+        <string name="tv_detail_repertorio_del_setlist">Setlist Repertoire</string>
+        <string name="tv_detail_seleccion_una_obra_para_abrir_su_partitura_en_google_drive">Select a work to open its score in Google Drive</string>
+        <string name="btn_menu_setlist_borrar">Delete</string>
+        <string name="btn_menu_contextual_borrar">Delete</string>
+        <string name="btn_menu_detail_agregar">Add</string>
+        <string name="hint_create_nombre_del_setlist">Setlist Name</string>
+        <string name="hint_create_grupo_o_artista">Group or artist</string>
+        <string name="btn_create_subirpdf">📄 PDF</string>
+        <string name="btn_create_subircamara">📷 Camera</string>
+        <string name="tv_activitycamera_0_paginas_capturadas">0 pages captured</string>
+        <string name="tv_dashboard_mis_setlists">My Setlists</string>
+        <string name="btn_dashboard_salir">Sign out</string>
+
+</resources>
