@@ -3,9 +3,11 @@ package com.catedra.apporgartistas
 import android.app.Application
 import com.cloudinary.android.MediaManager
 
-class App : Application() {
+class MainApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        MediaManager.init(this, mapOf("cloud_name" to "dnzu5bjk0"))
+        val config = mutableMapOf<String, String>()
+        config["cloud_name"] = "dnzu5bjk0"
+        MediaManager.init(this, config)
     }
 }

@@ -6,6 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 sealed class LoginState {
     object Idle : LoginState()
@@ -15,6 +17,7 @@ sealed class LoginState {
 }
 class LoginViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     private val _loginState = MutableLiveData<LoginState>(LoginState.Idle)
     val loginState: LiveData<LoginState> get() = _loginState
@@ -49,6 +52,25 @@ class LoginViewModel : ViewModel() {
             auth.signOut()
             _loginState.value = LoginState.Idle
         }
+    fun guardarTokenFcm(token: String) {
+        val userId = auth.currentUser?.uid
+
+        if (userId != null) {
+            val datosActualizados = hashMapOf(
+                "fcmToken" to token
+            )
+
+            // SetOptions.merge() actualiza el token sin borrar otros datos del usuario
+            firestore.collection("usuarios").document(userId)
+                .set(datosActualizados, SetOptions.merge())
+                .addOnSuccessListener {
+                    // Token guardado perfecto
+                }
+                .addOnFailureListener { e ->
+                    // Manejo de error si falla la escritura
+                }
+        }
+    }
 
     }
 

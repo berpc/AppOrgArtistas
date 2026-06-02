@@ -10,6 +10,14 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.FieldValue
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.QuerySnapshot
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 class SetlistDashboardViewModel : ViewModel() {
 
     private val firestore = FirebaseFirestore.getInstance()
@@ -45,6 +53,7 @@ class SetlistDashboardViewModel : ViewModel() {
                 // Encontramos el setlist compartido
                 val documento = result.documents.first()
                 val ownerId = documento.getString("ownerId") ?: ""
+                val tituloSetlist = documento.getString("titulo") ?: "un setlist"
 
                 // Firestore devuelve las listas como ArrayList, hacemos un cast seguro
                 val suscriptores = documento.get("suscriptores") as? List<String> ?: emptyList()
@@ -64,8 +73,33 @@ class SetlistDashboardViewModel : ViewModel() {
                 // Si todo está bien, lo agregamos al array "suscriptores"
                 documento.reference.update("suscriptores", FieldValue.arrayUnion(userId))
                     .addOnSuccessListener {
-                        _suscripcionExitosa.postValue(true)
-                        _isLoading.postValue(false)
+
+                        // --- INICIO DE LÓGICA DE NOTIFICACIÓN ---
+                        // Buscamos el token del dueño del setlist en la colección 'usuarios'
+                        firestore.collection("usuarios").document(ownerId).get()
+                            .addOnSuccessListener { userDoc ->
+                                val tokenDelDirector = userDoc.getString("fcmToken")
+
+                                // Si el director tiene un token guardado, disparamos el aviso
+                                if (!tokenDelDirector.isNullOrEmpty()) {
+                                    enviarNotificacionAlDirector(
+                                        tokenDelDirector = tokenDelDirector,
+                                        nombreInvitado = "Un compañero", // Acá podés poner el nombre real si lo tenés a mano en el ViewModel
+                                        nombreSetlist = tituloSetlist
+                                    )
+                                }
+
+                                // Liberamos la pantalla al usuario (incluso si la notificación falla, él ya entró al setlist)
+                                _suscripcionExitosa.postValue(true)
+                                _isLoading.postValue(false)
+                            }
+                            .addOnFailureListener {
+                                // Si falla la búsqueda del dueño por algún motivo raro, igual liberamos la pantalla
+                                _suscripcionExitosa.postValue(true)
+                                _isLoading.postValue(false)
+                            }
+                        // --- FIN DE LÓGICA DE NOTIFICACIÓN ---
+
                     }
                     .addOnFailureListener { e ->
                         Log.e("Dashboard", "Error al actualizar suscriptores", e)
@@ -78,6 +112,33 @@ class SetlistDashboardViewModel : ViewModel() {
                 _error.postValue("Error al buscar el código.")
                 _isLoading.postValue(false)
             }
+    }
+    private fun enviarNotificacionAlDirector(tokenDelDirector: String, nombreInvitado: String, nombreSetlist: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // REEMPLAZÁ ESTA URL POR LA TUYA DE RENDER
+                val url = "https://messaging-service-lfyh.onrender.com"
+
+                val jsonBody = JSONObject().apply {
+                    put("token", tokenDelDirector)
+                    put("title", "¡Nuevo músico en tu setlist!")
+                    put("body", "$nombreInvitado se unió a: $nombreSetlist")
+                }
+
+                val requestBody = jsonBody.toString().toRequestBody("application/json".toMediaType())
+
+                val request = Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build()
+
+                val client = OkHttpClient()
+                client.newCall(request).execute()
+
+            } catch (e: Exception) {
+                println("Error al disparar notificación: ${e.message}")
+            }
+        }
     }
 
     fun cargarSetlists() {

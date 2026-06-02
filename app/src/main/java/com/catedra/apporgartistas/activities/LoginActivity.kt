@@ -12,6 +12,7 @@ import com.catedra.apporgartistas.ui.activities.MainActivity
 import com.catedra.apporgartistas.ui.activities.RegisterActivity
 import com.catedra.apporgartistas.viewmodels.LoginState
 import com.catedra.apporgartistas.viewmodels.LoginViewModel
+import com.google.firebase.messaging.FirebaseMessaging
 
 class LoginActivity : AppCompatActivity() {
 
@@ -47,8 +48,19 @@ class LoginActivity : AppCompatActivity() {
                 }
                 is LoginState.Success -> {
                     Toast.makeText(this, "Login exitoso", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
+                    FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val token = task.result
+                            viewModel.guardarTokenFcm(token)
+                        } else {
+
+                            println("Error al obtener token de FCM: ${task.exception}")
+                        }
+
+                        // 3. Navegamos a la siguiente pantalla sin importar si el token falló o no
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    }
                 }
                 is LoginState.Error -> {
                     Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()

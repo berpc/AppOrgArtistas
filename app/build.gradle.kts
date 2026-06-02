@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.catedra.apporgartistas"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -37,6 +37,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+    kotlinOptions {
+        jvmTarget = "21"
+    }
     buildFeatures {
         viewBinding = true
     }
@@ -57,7 +60,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.material)
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
 
 
     testImplementation(libs.junit)
@@ -68,6 +71,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-messaging:25.0.2")
 
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
@@ -83,9 +87,6 @@ dependencies {
         "com.google.android.gms:play-services-maps:18.2.0"
     )
 
-    implementation(
-        "com.google.android.gms:play-services-location:21.0.1"
-    )
 
     implementation(
         "androidx.camera:camera-camera2:1.2.3"
