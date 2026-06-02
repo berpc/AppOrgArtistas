@@ -23,6 +23,11 @@ class CreateSetlistViewModel : ViewModel() {
     private val cloudinaryManager = CloudinaryManager(uploadPreset = "upload_from_local")
     private val firestore = FirebaseFirestore.getInstance()
 
+    private fun generarCodigoAleatorio(): String {
+        val caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return (1..6).map { caracteres.random() }.joinToString("")
+    }
+
     fun agregarPdfLocal(uri: Uri, nombre: String) {
         val listaActual = _archivosSeleccionados.value ?: emptyList()
         _archivosSeleccionados.value = listaActual + ArchivoLocal(uri, nombre)
@@ -62,15 +67,22 @@ class CreateSetlistViewModel : ViewModel() {
         }
     }
 
-    private fun crearDocumentoEnFirestore(userId: String, titulo: String,nombreGrupo: String,
+    private fun crearDocumentoEnFirestore(userId: String, titulo: String, nombreGrupo: String,
                                           ubicacion: String, partituras: List<PartituraCloud>){
+
+        val codigo = generarCodigoAleatorio()
+
         val datosSetlist = hashMapOf(
             "titulo" to titulo,
             "nombreGrupo" to nombreGrupo,
             "ubicacion" to ubicacion,
             "fechaCreacion" to System.currentTimeMillis(),
             "partituras" to partituras,
-            "isActive" to true
+            "isActive" to true,
+            // Agregamos los nuevos campos a la base de datos
+            "ownerId" to userId,
+            "codigoCompartir" to codigo,
+            "suscriptores" to emptyList<String>()
         )
 
         firestore.collection("usuarios").document(userId)

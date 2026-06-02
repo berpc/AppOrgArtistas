@@ -7,5 +7,9 @@ data class Setlist(
     var ubicacion: String = "",
     var fechaCreacion: Long = 0,
     var partituras: List<PartituraCloud> = emptyList(),
-    var isActive: Boolean = true
+    var isActive: Boolean = true,
+
+    var ownerId: String = "",
+    var codigoCompartir: String = "",
+    var suscriptores: List<String> = emptyList()
 ) : Serializable

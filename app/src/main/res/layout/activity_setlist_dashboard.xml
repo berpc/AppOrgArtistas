@@ -56,6 +56,14 @@
         android:text="Crear Nuevo Setlist"
         android:backgroundTint="#6B4EFF"
         android:textColor="#FFFFFF" />
+    <Button
+        android:id="@+id/btnUnirseSetlist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Unirse a un Setlist con Código"
+        android:backgroundTint="#4CAF50" />
 
     <!-- Lista -->
     <androidx.recyclerview.widget.RecyclerView
