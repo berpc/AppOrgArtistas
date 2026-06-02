@@ -14,7 +14,6 @@ import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.Setlist
 import com.catedra.apporgartistas.ui.adapters.SetlistAdapter
 import com.catedra.apporgartistas.viewmodels.SetlistDashboardViewModel
-import com.google.firebase.auth.FirebaseAuth
 import com.catedra.apporgartistas.activities.LoginActivity
 import com.catedra.apporgartistas.viewmodels.LoginViewModel
 import androidx.appcompat.app.AlertDialog
@@ -40,7 +39,7 @@ class SetlistDashboardActivity : AppCompatActivity() {
             textAlignment = View.TEXT_ALIGNMENT_CENTER
         }
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle("Unirse a un Setlist")
             .setMessage("Ingresá el código de 6 caracteres que te compartió el director:")
             .setView(input)
