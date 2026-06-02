@@ -33,26 +33,27 @@ class SetlistDashboardActivity : AppCompatActivity() {
 
     private fun mostrarDialogoIngresarCodigo() {
         val input = android.widget.EditText(this).apply {
-            hint = "Ej: A7X9BQ"
+            hint = context.getString(R.string.hint_dashboard_ej_a7x9bq)
             // Forzamos mayúsculas y limitamos a 6 caracteres
             filters = arrayOf(InputFilter.AllCaps(), InputFilter.LengthFilter(6))
             textAlignment = View.TEXT_ALIGNMENT_CENTER
         }
 
         AlertDialog.Builder(this)
-            .setTitle("Unirse a un Setlist")
-            .setMessage("Ingresá el código de 6 caracteres que te compartió el director:")
+            .setTitle(getString(R.string.alerttitle_dashboard_unirse_a_un_setlist))
+            .setMessage(getString(R.string.message_dashboard_ingresa_el_codigo_de_6_caracteres_que_te_compartio_el_director))
             .setView(input)
-            .setPositiveButton("Unirse") { _, _ ->
+            .setPositiveButton(getString(R.string.btn_dashboard_unirse)) { _, _ ->
                 val codigo = input.text.toString().trim()
                 if (codigo.length == 6) {
                     // Llamamos a la nueva función del ViewModel
                     viewModel.unirseASetlistConCodigo(codigo)
                 } else {
-                    Toast.makeText(this, "El código debe tener exactamente 6 caracteres", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        getString(R.string.message_dashboard_el_codigo_debe_tener_exactamente_6_caracteres), Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.btn_dashboard_cancelar), null)
             .show()
     }
 
@@ -60,7 +61,7 @@ class SetlistDashboardActivity : AppCompatActivity() {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             // Inflamos el tachito de basura
             mode.menuInflater.inflate(R.menu.menu_borrar_setlist, menu)
-            mode.title = "1 seleccionado"
+            mode.title = getString(R.string.title_dashboard_1_seleccionado)
             return true
         }
 
@@ -87,7 +88,7 @@ class SetlistDashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setlist_dashboard)
-        supportActionBar?.title = "Mis Setlists"
+        supportActionBar?.title = getString(R.string.title_dashboard_mis_setlists)
         val btnUnirse = findViewById<Button>(R.id.btnUnirseSetlist)
 
         configurarBotonNuevo()
@@ -136,7 +137,8 @@ class SetlistDashboardActivity : AppCompatActivity() {
         }
         viewModel.suscripcionExitosa.observe(this) { exito ->
             if (exito == true) {
-                Toast.makeText(this, "¡Te uniste al setlist con éxito!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_dashboard_te_uniste_al_setlist_con_xito), Toast.LENGTH_SHORT).show()
 
                 viewModel.cargarSetlists()
             }
@@ -163,13 +165,17 @@ class SetlistDashboardActivity : AppCompatActivity() {
         val setlist = setlistSeleccionadoParaBorrar ?: return
 
         AlertDialog.Builder(this)
-            .setTitle("Borrar Setlist")
-            .setMessage("¿Estás seguro de que querés borrar '${setlist.titulo}'?")
-            .setPositiveButton("Borrar") { _, _ ->
+            .setTitle(getString(R.string.title_dashboard_borrar_setlist))
+            .setMessage(
+                getString(
+                    R.string.message_dashboard_estas_seguro_de_que_queres_borrar,
+                    setlist.titulo
+                ))
+            .setPositiveButton(getString(R.string.btn_dashboard_borrar)) { _, _ ->
                 viewModel.ocultarSetlist(setlist.id)
                 mode.finish() // Cierra la barra de borrado
             }
-            .setNegativeButton("Cancelar") { _, _ ->
+            .setNegativeButton(getString(R.string.btn_dashboard_cancelar)) { _, _ ->
                 mode.finish()
             }
             .show()

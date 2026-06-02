@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import com.catedra.apporgartistas.activities.CameraActivity
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationServices
@@ -26,10 +27,11 @@ class CreateSetlistActivity : AppCompatActivity() {
 
     private val abrirCamara = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            val uriString = result.data?.getStringExtra("PDF_CAPTURADO")
+            val uriString = result.data?.getStringExtra(getString(R.string.default_create_pdf_capturado))
             if (uriString != null) {
                 // Al sacar foto, le damos un nombre genérico para que el usuario lo cambie
-                pedirNombrePartitura(uriString.toUri(), "Foto Partitura")
+                pedirNombrePartitura(uriString.toUri(),
+                    getString(R.string.default_create_foto_partitura))
             }
         }
     }
@@ -44,6 +46,7 @@ class CreateSetlistActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_setlist)
@@ -70,15 +73,20 @@ class CreateSetlistActivity : AppCompatActivity() {
         //Observamos el ViewModel para actualizar la pantalla
         viewModel.archivosSeleccionados.observe(this) { listaArchivos ->
             if (listaArchivos.isNotEmpty()) {
-                tvArchivos.text = "${listaArchivos.size} archivo(s) listo(s) para subir"
+                tvArchivos.text = getString(
+                    R.string.message_create_archivos_listos_para_subir,
+                    listaArchivos.size
+                )
             }
         }
         viewModel.guardadoExitoso.observe(this) { exito ->
             if (exito == true) {
-                Toast.makeText(this, "¡Setlist creado con éxito!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_create_setlist_creado_con_xito), Toast.LENGTH_SHORT).show()
                 finish() // Cierra esta pantalla y vuelve al Dashboard
-            } else if (exito == false) {
-                Toast.makeText(this, "Hubo un error al guardar.", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this,
+                    getString(R.string.message_create_hubo_un_error_al_guardar), Toast.LENGTH_LONG).show()
             }
         }
         btnUbicacion.setOnClickListener {
@@ -111,7 +119,7 @@ class CreateSetlistActivity : AppCompatActivity() {
 
                     Toast.makeText(
                         this,
-                        "No se pudo obtener ubicación",
+                        getString(R.string.message_create_no_se_pudo_obtener_ubicaci_n),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -127,33 +135,38 @@ class CreateSetlistActivity : AppCompatActivity() {
 
         btnGuardar.setOnClickListener {
             val titulo = etTitulo.text.toString()
-            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "usuario_anonimo"
+            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: getString(R.string.default_create_usuario_anonimo)
             val nombreGrupo = etNombreGrupo.text.toString()
             val ubicacion = etUbicacion.text.toString()
 
             // VALIDACIONES
             if (titulo.isBlank()) {
-                Toast.makeText(this, "Ingresá un título", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_create_ingresa_un_titulo), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (nombreGrupo.isBlank()) {
-                Toast.makeText(this, "Ingresá el nombre del grupo", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_create_ingresa_el_nombre_del_grupo), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (ubicacion.isBlank()) {
-                Toast.makeText(this, "Ingresá una ubicación", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_create_ingresa_una_ubicacion), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             // ACÁ ESTÁ EL CAMBIO
             if (viewModel.archivosSeleccionados.value.isNullOrEmpty()) {
-                Toast.makeText(this, "Subí al menos un PDF o foto", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_create_subi_al_menos_un_pdf_o_foto), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            Toast.makeText(this, "Subiendo archivos, por favor esperá...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,
+                getString(R.string.message_create_subiendo_archivos_por_favor_espera), Toast.LENGTH_SHORT).show()
             viewModel.guardarSetlist(titulo, nombreGrupo, ubicacion, userId)
         }
     }
@@ -174,7 +187,7 @@ class CreateSetlistActivity : AppCompatActivity() {
             }
         }
         // Le sacamos la extensión .pdf si la tiene para que quede más limpio
-        return result?.substringBeforeLast(".") ?: "Nueva Partitura"
+        return result?.substringBeforeLast(".") ?: getString(R.string.new_partitura)
     }
 
     // 2. Mostrar el cuadro de diálogo para editar el nombre
@@ -184,16 +197,17 @@ class CreateSetlistActivity : AppCompatActivity() {
         input.setSelection(input.text.length) // Pone el cursor al final
 
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Nombre de la Partitura")
-            .setMessage("Verificá o editá el nombre de la partitura:")
+            .setTitle(getString(R.string.default_create_nombre_de_la_partitura))
+            .setMessage(getString(R.string.message_create_verifica_o_edita_el_nombre_de_la_partitura))
             .setView(input)
             .setCancelable(false)
-            .setPositiveButton("Agregar") { _, _ ->
+            .setPositiveButton(getString(R.string.btn_create_agregar)) { _, _ ->
                 val nombreFinal = input.text.toString().ifBlank { nombreSugerido }
                 viewModel.agregarPdfLocal(uri, nombreFinal)
-                Toast.makeText(this, "Agregada: $nombreFinal", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_create_agregada, nombreFinal), Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.btn_create_cancelar), null)
             .show()
     }
 }

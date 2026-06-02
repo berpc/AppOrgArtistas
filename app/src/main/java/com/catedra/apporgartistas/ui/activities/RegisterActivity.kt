@@ -41,17 +41,20 @@ class RegisterActivity : AppCompatActivity() {
 
             // Validaciones
             if (nombre.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this, "Completá todos los campos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_register_completa_todos_los_campos), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (password != confirmPassword) {
-                Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_register_las_contrasenias_no_coinciden), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (password.length < 6) {
-                Toast.makeText(this, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_register_la_contrasenia_debe_tener_al_menos_6_caracteres), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -63,7 +66,7 @@ class RegisterActivity : AppCompatActivity() {
 
                         Toast.makeText(
                             this,
-                            "¡Cuenta creada exitosamente!",
+                            getString(R.string.message_register_cuenta_creada_exitosamente),
                             Toast.LENGTH_SHORT
                         ).show()
 

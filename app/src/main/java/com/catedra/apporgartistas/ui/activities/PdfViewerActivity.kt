@@ -1,5 +1,6 @@
 package com.catedra.apporgartistas.ui.activities
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebChromeClient
@@ -14,6 +15,7 @@ import java.net.URLEncoder
 class PdfViewerActivity : AppCompatActivity() {
 
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdf_viewer)
@@ -21,8 +23,10 @@ class PdfViewerActivity : AppCompatActivity() {
         val webView = findViewById<WebView>(R.id.webViewPdf)
         val tvCargando = findViewById<TextView>(R.id.tvCargandoPdf)
 
-        val pdfUrl = intent.getStringExtra("PDF_URL") ?: ""
-        val obraTitulo = intent.getStringExtra("OBRA_TITULO") ?: "Partitura"
+        val pdfUrl = intent.getStringExtra(getString(R.string.default_pdfviewer_pdf_url)) ?: ""
+        val obraTitulo = intent.getStringExtra(getString(R.string.default_pdfviewer_obra_titulo)) ?: getString(
+            R.string.default_pdf_partitura
+        )
 
         supportActionBar?.title = obraTitulo
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

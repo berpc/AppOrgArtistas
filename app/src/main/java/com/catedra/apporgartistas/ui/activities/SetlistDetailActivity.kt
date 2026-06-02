@@ -44,7 +44,8 @@ class SetlistDetailActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             val uriString = result.data?.getStringExtra("PDF_CAPTURADO")
             if (uriString != null && setlistActual != null) {
-                pedirNombrePartitura(Uri.parse(uriString), "Foto Partitura")
+                pedirNombrePartitura(Uri.parse(uriString),
+                    getString(R.string.default_detail_foto_partitura))
             }
         }
     }
@@ -68,7 +69,8 @@ class SetlistDetailActivity : AppCompatActivity() {
             supportActionBar?.title = it.titulo
             configurarListaDePartituras(it)
             observarViewModel()
-        } ?: run { supportActionBar?.title = "Error al cargar Setlist" }
+        } ?: run { supportActionBar?.title =
+            getString(R.string.message_detail_error_al_cargar_setlist) }
     }
 
     private fun observarViewModel() {
@@ -83,25 +85,28 @@ class SetlistDetailActivity : AppCompatActivity() {
         viewModel.setlistActualizado.observe(this) { setlist ->
             setlistActual = setlist
             actualizarListaVisual()
-            Toast.makeText(this, "Setlist actualizado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,
+                getString(R.string.message_detail_setlist_actualizado), Toast.LENGTH_SHORT).show()
         }
 
         viewModel.partiturasEnNube.observe(this) { listaPartituras ->
             if (listaPartituras.isEmpty()) {
-                Toast.makeText(this, "No tenés partituras en la nube.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.message_detail_no_tenes_partituras_en_la_nube), Toast.LENGTH_SHORT).show()
                 return@observe
             }
 
             val nombresAmostrar = listaPartituras.map { it.nombre.ifBlank { "Partitura sin nombre" } }.toTypedArray()
 
             androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Tu Repertorio en la Nube")
+                .setTitle(getString(R.string.title_detail_tu_repertorio_en_la_nube))
                 .setItems(nombresAmostrar) { _, which ->
-                    Toast.makeText(this, "Vinculando...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        getString(R.string.message_detail_vinculando), Toast.LENGTH_SHORT).show()
                     // YA NO PASAMOS EL USER_ID
                     viewModel.agregarPartituraExistente(setlistActual!!, listaPartituras[which])
                 }
-                .setNegativeButton("Cancelar", null)
+                .setNegativeButton(getString(R.string.btn_detail_cancelar), null)
                 .show()
         }
     }
@@ -140,7 +145,8 @@ class SetlistDetailActivity : AppCompatActivity() {
             }
             override fun onDestroyActionMode(mode: ActionMode?) {}
             override fun onItemCheckedStateChanged(mode: ActionMode?, position: Int, id: Long, checked: Boolean) {
-                mode?.title = "${listView.checkedItemCount} seleccionados"
+                mode?.title =
+                    getString(R.string.default_detail_seleccionados, listView.checkedItemCount)
             }
         })
     }
@@ -148,7 +154,7 @@ class SetlistDetailActivity : AppCompatActivity() {
     private fun actualizarListaVisual() {
         titulosVisuales.clear()
         setlistActual?.partituras?.forEach { partitura ->
-            titulosVisuales.add(partitura.nombre.ifBlank { "Partitura sin nombre" })
+            titulosVisuales.add(partitura.nombre.ifBlank { getString(R.string.default_detail_partitura_sin_nombre) })
         }
         adapter.notifyDataSetChanged()
     }
@@ -165,15 +171,19 @@ class SetlistDetailActivity : AppCompatActivity() {
     }
 
     private fun mostrarOpcionesDeAgregado() {
-        val opciones = arrayOf("Subir PDF desde el celular", "Tomar foto con la cámara", "Elegir partitura de la nube")
+        val opciones = arrayOf(getString(R.string.option_detail_subir_pdf_desde_el_celular),
+            getString(
+                R.string.option_detail_tomar_foto_con_la_camara
+            ), getString(R.string.default_detail_elegir_partitura_de_la_nube))
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Agregar Partitura")
+            .setTitle(getString(R.string.title_detail_agregar_partitura))
             .setItems(opciones) { _, which ->
                 when (which) {
                     0 -> selectorDePdf.launch("application/pdf")
                     1 -> abrirCamara.launch(Intent(this, CameraActivity::class.java))
                     2 -> {
-                        Toast.makeText(this, "Buscando...", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this,
+                            getString(R.string.message_detail_buscando), Toast.LENGTH_SHORT).show()
                         // YA NO PASAMOS EL USER_ID
                         viewModel.obtenerTodasLasPartiturasDeLaNube()
                     }
@@ -188,16 +198,16 @@ class SetlistDetailActivity : AppCompatActivity() {
         }
 
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Nombre de la Partitura")
+            .setTitle(getString(R.string.title_detail_nombre_de_la_partitura))
             .setView(input)
             .setCancelable(false)
-            .setPositiveButton("Subir") { _, _ ->
+            .setPositiveButton(getString(R.string.btn_detail_subir)) { _, _ ->
                 val nombreFinal = input.text.toString().ifBlank { nombreSugerido }
-                Toast.makeText(this, "Subiendo...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.message_detail_subiendo), Toast.LENGTH_SHORT).show()
                 // YA NO PASAMOS EL USER_ID
                 viewModel.agregarNuevaPartitura(uri, nombreFinal, setlistActual!!)
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.btn_detail_cancelar), null)
             .show()
     }
 }

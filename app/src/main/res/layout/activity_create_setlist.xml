@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nuevo Setlist"
+            android:text="@string/title_activity_create_nuevo_setlist"
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="#222222" />
@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Cargá tus partituras y datos del evento"
+            android:text="@string/subtitle_activity_create_carga_tus_partituras_y_datos_del_evento"
             android:textSize="14sp"
             android:textColor="#777777" />
 
@@ -59,7 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:backgroundTint="#6B4EFF"
-            android:hint="Ubicación del evento"
+            android:hint="@string/text_create_ubicacion_del_evento"
             android:inputType="textCapSentences"
             android:padding="14dp" />
         <TextView
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:backgroundTint="#2196F3"
-            android:text="Obtener ubicación actual"
+            android:text="@string/btn_activity_create_obtener_ubicacion_actual"
             android:textColor="#FFFFFF"/>
 
         <!-- Botón PDF -->
@@ -86,7 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:backgroundTint="#6B4EFF"
-            android:text="Subir PDF"
+            android:text="@string/btn_activity_createsubir_pdf"
             android:textColor="#FFFFFF" />
 
         <!-- Botón Cámara -->
@@ -96,7 +96,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:backgroundTint="#FF9800"
-            android:text="Tomar Foto"
+            android:text="@string/btn_activity_create_tomar_foto"
             android:textColor="#FFFFFF" />
 
         <!-- Texto archivo -->
@@ -105,7 +105,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Ningún archivo seleccionado"
+            android:text="@string/btn_activity_create_ningun_archivo_seleccionado"
             android:textColor="#777777" />
 
         <!-- Botón guardar -->
@@ -115,7 +115,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:backgroundTint="#4CAF50"
-            android:text="Crear Setlist"
+            android:text="@string/btn_activity_create_crear_setlist"
             android:textColor="#FFFFFF" />
 
     </LinearLayout>

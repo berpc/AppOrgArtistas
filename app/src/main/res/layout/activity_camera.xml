@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Capturar Partitura"
+        android:text="@string/activityCamera_capturar_partitura"
         android:textSize="26sp"
         android:textStyle="bold"
         android:textColor="#222222" />
@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Tomá una foto para convertirla en PDF"
+        android:text="@string/activity_camera_toma_una_foto_para_convertirla_en_pdf"
         android:textSize="14sp"
         android:textColor="#777777" />
 
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:backgroundTint="#6B4EFF"
-        android:text="Tomar Foto"
+        android:text="@string/activity_camera_tomar_foto"
         android:textColor="#FFFFFF" />
 
     <!-- Botón usar -->
@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:backgroundTint="#4CAF50"
-        android:text="Guardar"
+        android:text="@string/btn_activity_camera_guardar"
         android:textColor="#FFFFFF" />
 
 </LinearLayout>

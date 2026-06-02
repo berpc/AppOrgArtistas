@@ -18,7 +18,7 @@
         android:id="@+id/tvCargandoPdf"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cargando partitura..."
+        android:text="@string/loading_pdfviewer_cargando_partitura"
         android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
