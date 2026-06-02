@@ -131,4 +131,6 @@
     <string name="btn_menu_setlist_borrar">Borrar</string>
     <string name="btn_menu_contextual_borrar">Borrar</string>
     <string name="btn_menu_detail_agregar">Agregar</string>
+    <string name="hint_create_nombre_del_setlist">Nombre del Setlist</string>
+    <string name="hint_create_grupo_o_artista">Grupo o artista</string>
 </resources>
