@@ -8,10 +8,11 @@ import com.catedra.apporgartistas.data.models.PartituraCloud
 import com.catedra.apporgartistas.utils.CloudinaryManager
 import com.google.firebase.firestore.FirebaseFirestore
 
-
+data class ArchivoLocal(val uri: Uri, val nombre: String)
 class CreateSetlistViewModel : ViewModel() {
-    private val _pdfsSeleccionados = MutableLiveData<List<Uri>>(emptyList())
-    val pdfsSeleccionados: LiveData<List<Uri>> = _pdfsSeleccionados
+
+    private val _archivosSeleccionados = MutableLiveData<List<ArchivoLocal>>(emptyList())
+    val archivosSeleccionados: LiveData<List<ArchivoLocal>> = _archivosSeleccionados
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -19,19 +20,21 @@ class CreateSetlistViewModel : ViewModel() {
     private val _guardadoExitoso = MutableLiveData<Boolean>()
     val guardadoExitoso: LiveData<Boolean> = _guardadoExitoso
 
-    private val cloudinaryManager = CloudinaryManager(
-        uploadPreset = "upload_from_local"
-    )
-
+    private val cloudinaryManager = CloudinaryManager(uploadPreset = "upload_from_local")
     private val firestore = FirebaseFirestore.getInstance()
 
-    fun agregarPdfLocal(uri: Uri) {
-        val listaActual = _pdfsSeleccionados.value ?: emptyList()
-        _pdfsSeleccionados.value = listaActual + uri
+    private fun generarCodigoAleatorio(): String {
+        val caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return (1..6).map { caracteres.random() }.joinToString("")
+    }
+
+    fun agregarPdfLocal(uri: Uri, nombre: String) {
+        val listaActual = _archivosSeleccionados.value ?: emptyList()
+        _archivosSeleccionados.value = listaActual + ArchivoLocal(uri, nombre)
     }
 
     fun guardarSetlist(titulo: String, nombreGrupo: String, ubicacion: String, userId: String){
-        val archivos = _pdfsSeleccionados.value ?: emptyList()
+        val archivos = _archivosSeleccionados.value ?: emptyList()
         if (titulo.isBlank() || archivos.isEmpty()) return
 
         _isLoading.value = true
@@ -40,24 +43,22 @@ class CreateSetlistViewModel : ViewModel() {
         var subidasCompletadas = 0
         var huboError = false
 
-        archivos.forEach { uri ->
+        archivos.forEach { archivoLocal ->
             cloudinaryManager.subirPartitura(
-                fileUri = uri,
+                fileUri = archivoLocal.uri,
                 userId = userId,
-                onSuccess = {urlSegura, publicId ->
+                onSuccess = { urlSegura, publicId ->
                     if (!huboError) {
-                        // Guardamos el resultado en nuestra lista temporal
-                        partiturasSubidas.add(PartituraCloud(urlSegura, publicId))
+                        partiturasSubidas.add(PartituraCloud(archivoLocal.nombre, urlSegura, publicId))
                         subidasCompletadas++
 
-                        // 3. Chequeamos si ya terminamos de subir el último PDF
                         if (subidasCompletadas == archivos.size) {
-                            crearDocumentoEnFirestore(userId, titulo,nombreGrupo, ubicacion,partiturasSubidas)
+                            crearDocumentoEnFirestore(userId, titulo, nombreGrupo, ubicacion, partiturasSubidas)
                         }
                     }
                 },
                 onError = { errorMsg ->
-                    Log.e("CreateSetlist", "Error al subir a Cloudinary: $errorMsg")
+                    Log.e("CreateSetlist", "Error Cloudinary: $errorMsg")
                     huboError = true
                     _isLoading.postValue(false)
                     _guardadoExitoso.postValue(false)
@@ -66,14 +67,22 @@ class CreateSetlistViewModel : ViewModel() {
         }
     }
 
-    private fun crearDocumentoEnFirestore(userId: String, titulo: String,nombreGrupo: String,
+    private fun crearDocumentoEnFirestore(userId: String, titulo: String, nombreGrupo: String,
                                           ubicacion: String, partituras: List<PartituraCloud>){
+
+        val codigo = generarCodigoAleatorio()
+
         val datosSetlist = hashMapOf(
             "titulo" to titulo,
             "nombreGrupo" to nombreGrupo,
             "ubicacion" to ubicacion,
             "fechaCreacion" to System.currentTimeMillis(),
-            "partituras" to partituras
+            "partituras" to partituras,
+            "isActive" to true,
+            // Agregamos los nuevos campos a la base de datos
+            "ownerId" to userId,
+            "codigoCompartir" to codigo,
+            "suscriptores" to emptyList<String>()
         )
 
         firestore.collection("usuarios").document(userId)

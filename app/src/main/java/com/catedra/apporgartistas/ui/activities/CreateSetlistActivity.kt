@@ -16,8 +16,8 @@ import com.catedra.apporgartistas.activities.CameraActivity
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
-import androidx.core.net.toUri
 import com.google.android.gms.location.LocationServices
+import androidx.core.net.toUri
 
 
 class CreateSetlistActivity : AppCompatActivity() {
@@ -28,6 +28,8 @@ class CreateSetlistActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             val uriString = result.data?.getStringExtra("PDF_CAPTURADO")
             if (uriString != null) {
+                // Al sacar foto, le damos un nombre genérico para que el usuario lo cambie
+                pedirNombrePartitura(uriString.toUri(), "Foto Partitura")
                 viewModel.agregarPdfLocal(uriString.toUri())
                 Toast.makeText(this, "Foto agregada como PDF", Toast.LENGTH_SHORT).show()
             }
@@ -38,7 +40,9 @@ class CreateSetlistActivity : AppCompatActivity() {
 
     private val selectorDePdf = registerForActivityResult(ActivityResultContracts.GetContent()){ uri: Uri? ->
         if (uri != null) {
-            viewModel.agregarPdfLocal(uri)
+            // Obtenemos el nombre real del archivo PDF
+            val nombreOriginal = obtenerNombreDelArchivo(uri)
+            pedirNombrePartitura(uri, nombreOriginal)
         }
 
     }
@@ -67,9 +71,9 @@ class CreateSetlistActivity : AppCompatActivity() {
         }
 
         //Observamos el ViewModel para actualizar la pantalla
-        viewModel.pdfsSeleccionados.observe(this) { listaUris ->
-            if (listaUris.isNotEmpty()) {
-                tvArchivos.text = "${listaUris.size} archivo(s) listo(s) para subir"
+        viewModel.archivosSeleccionados.observe(this) { listaArchivos ->
+            if (listaArchivos.isNotEmpty()) {
+                tvArchivos.text = "${listaArchivos.size} archivo(s) listo(s) para subir"
             }
         }
         viewModel.guardadoExitoso.observe(this) { exito ->
@@ -141,13 +145,14 @@ class CreateSetlistActivity : AppCompatActivity() {
             }
 
 
-            if (viewModel.pdfsSeleccionados.value.isNullOrEmpty()) {
-                Toast.makeText(this, "Subí al menos un PDF", Toast.LENGTH_SHORT).show()
+            // ACÁ ESTÁ EL CAMBIO
+            if (viewModel.archivosSeleccionados.value.isNullOrEmpty()) {
+                Toast.makeText(this, "Subí al menos un PDF o foto", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             Toast.makeText(this, "Subiendo archivos, por favor esperá...", Toast.LENGTH_SHORT).show()
-            viewModel.guardarSetlist(titulo,nombreGrupo, ubicacion,userId)
+            viewModel.guardarSetlist(titulo, nombreGrupo, ubicacion, userId)
         }
     }
 }

@@ -14,11 +14,12 @@ import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.Setlist
 import com.catedra.apporgartistas.ui.adapters.SetlistAdapter
 import com.catedra.apporgartistas.viewmodels.SetlistDashboardViewModel
-import com.google.firebase.auth.FirebaseAuth
 import com.catedra.apporgartistas.activities.LoginActivity
 import com.catedra.apporgartistas.viewmodels.LoginViewModel
 import androidx.appcompat.app.AlertDialog
-import android.widget.TextView
+import android.text.InputFilter
+import android.view.View
+import android.widget.Toast
 
 
 class SetlistDashboardActivity : AppCompatActivity() {
@@ -26,11 +27,34 @@ class SetlistDashboardActivity : AppCompatActivity() {
     private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var adapter: SetlistAdapter
 
-    //private lateinit var tvCantidadSetlists: TextView
-
     // Variables para el modo de selección
     private var actionMode: ActionMode? = null
     private var setlistSeleccionadoParaBorrar: Setlist? = null
+
+    private fun mostrarDialogoIngresarCodigo() {
+        val input = android.widget.EditText(this).apply {
+            hint = "Ej: A7X9BQ"
+            // Forzamos mayúsculas y limitamos a 6 caracteres
+            filters = arrayOf(InputFilter.AllCaps(), InputFilter.LengthFilter(6))
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Unirse a un Setlist")
+            .setMessage("Ingresá el código de 6 caracteres que te compartió el director:")
+            .setView(input)
+            .setPositiveButton("Unirse") { _, _ ->
+                val codigo = input.text.toString().trim()
+                if (codigo.length == 6) {
+                    // Llamamos a la nueva función del ViewModel
+                    viewModel.unirseASetlistConCodigo(codigo)
+                } else {
+                    Toast.makeText(this, "El código debe tener exactamente 6 caracteres", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
 
     private val actionModeCallback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -63,19 +87,21 @@ class SetlistDashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setlist_dashboard)
-        //tvCantidadSetlists = findViewById(R.id.tvCantidadSetlists)
         supportActionBar?.title = "Mis Setlists"
+        val btnUnirse = findViewById<Button>(R.id.btnUnirseSetlist)
 
         configurarBotonNuevo()
         configurarBotonLogout()
         configurarRecyclerView()
         observarViewModel()
+        btnUnirse.setOnClickListener {
+            mostrarDialogoIngresarCodigo()
+        }
     }
     // Usamos onResume para que, si el usuario vuelve de crear un setlist, la lista se actualice sola
     override fun onResume() {
         super.onResume()
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        viewModel.cargarSetlists(userId)
+        viewModel.cargarSetlists()
     }
 
     private fun configurarRecyclerView() {
@@ -107,8 +133,13 @@ class SetlistDashboardActivity : AppCompatActivity() {
     private fun observarViewModel() {
         viewModel.setlists.observe(this){listaSetlists ->
             adapter.actualizarLista(listaSetlists)
-           // tvCantidadSetlists.text =
-                //"${listaSetlists.size} setlists creados"
+        }
+        viewModel.suscripcionExitosa.observe(this) { exito ->
+            if (exito == true) {
+                Toast.makeText(this, "¡Te uniste al setlist con éxito!", Toast.LENGTH_SHORT).show()
+
+                viewModel.cargarSetlists()
+            }
         }
     }
 
@@ -130,13 +161,12 @@ class SetlistDashboardActivity : AppCompatActivity() {
     }
     private fun confirmarBorrado(mode: ActionMode) {
         val setlist = setlistSeleccionadoParaBorrar ?: return
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         AlertDialog.Builder(this)
             .setTitle("Borrar Setlist")
             .setMessage("¿Estás seguro de que querés borrar '${setlist.titulo}'?")
             .setPositiveButton("Borrar") { _, _ ->
-                viewModel.ocultarSetlist(userId, setlist.id)
+                viewModel.ocultarSetlist(setlist.id)
                 mode.finish() // Cierra la barra de borrado
             }
             .setNegativeButton("Cancelar") { _, _ ->
