@@ -87,7 +87,7 @@ class CreateSetlistActivity : AppCompatActivity() {
                 Toast.makeText(this,
                     getString(R.string.message_create_setlist_creado_con_xito), Toast.LENGTH_SHORT).show()
                 finish() // Cierra esta pantalla y vuelve al Dashboard
-            } else if (exito == false){
+            } else {
                 Toast.makeText(this,
                     getString(R.string.message_create_hubo_un_error_al_guardar), Toast.LENGTH_LONG).show()
             }

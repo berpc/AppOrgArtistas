@@ -145,4 +145,11 @@
     <string name="btn_menu_setlist_borrar">Borrar</string>
     <string name="btn_menu_contextual_borrar">Borrar</string>
     <string name="btn_menu_detail_agregar">Agregar</string>
+    <string name="hint_create_nombre_del_setlist">Nombre del Setlist</string>
+    <string name="hint_create_grupo_o_artista">Grupo o artista</string>
+    <string name="btn_create_subirpdf">📄 PDF</string>
+    <string name="btn_create_subircamara">📷 Cámara</string>
+    <string name="tv_activitycamera_0_paginas_capturadas">0 páginas capturadas</string>
+    <string name="tv_dashboard_mis_setlists">Mis Setlists</string>
+    <string name="btn_dashboard_salir">Salir</string>
 </resources>
