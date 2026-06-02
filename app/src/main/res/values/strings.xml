@@ -11,6 +11,14 @@
     <string name="subir_pdf">Subir PDF</string>
     <string name="crear_setlist">Crear Setlist</string>
     <string name="pages_in_queue">Páginas en cola: %1$d</string>
+    <string name="logo_app">Logo App</string>
+    <string name="org_artistas">OrgArtistas</string>
+    <string name="bienvenido">Bienvenido/a</string>
+    <string name="login_subtitle">Iniciá sesión para continuar</string>
+    <string name="email">Email</string>
+    <string name="password">Contraseña</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="no_account">¿No tenés cuenta? Registrate</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
