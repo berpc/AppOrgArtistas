@@ -18,13 +18,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.catedra.apporgartistas.activities.LoginActivity
 import com.catedra.apporgartistas.viewmodels.LoginViewModel
 import androidx.appcompat.app.AlertDialog
-
+import android.widget.TextView
 
 
 class SetlistDashboardActivity : AppCompatActivity() {
     private val viewModel: SetlistDashboardViewModel by viewModels()
     private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var adapter: SetlistAdapter
+
+    //private lateinit var tvCantidadSetlists: TextView
 
     // Variables para el modo de selección
     private var actionMode: ActionMode? = null
@@ -61,6 +63,7 @@ class SetlistDashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setlist_dashboard)
+        //tvCantidadSetlists = findViewById(R.id.tvCantidadSetlists)
         supportActionBar?.title = "Mis Setlists"
 
         configurarBotonNuevo()
@@ -104,6 +107,8 @@ class SetlistDashboardActivity : AppCompatActivity() {
     private fun observarViewModel() {
         viewModel.setlists.observe(this){listaSetlists ->
             adapter.actualizarLista(listaSetlists)
+           // tvCantidadSetlists.text =
+                //"${listaSetlists.size} setlists creados"
         }
     }
 

@@ -16,6 +16,7 @@ import com.catedra.apporgartistas.activities.CameraActivity
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
+import androidx.core.net.toUri
 import com.google.android.gms.location.LocationServices
 
 
@@ -27,7 +28,7 @@ class CreateSetlistActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             val uriString = result.data?.getStringExtra("PDF_CAPTURADO")
             if (uriString != null) {
-                viewModel.agregarPdfLocal(Uri.parse(uriString))
+                viewModel.agregarPdfLocal(uriString.toUri())
                 Toast.makeText(this, "Foto agregada como PDF", Toast.LENGTH_SHORT).show()
             }
         }
@@ -103,7 +104,11 @@ class CreateSetlistActivity : AppCompatActivity() {
                     val lat = location.latitude
                     val lng = location.longitude
 
-                    tvCoordenadas.text = "Lat: $lat | Lng: $lng"
+                    tvCoordenadas.text = getString(
+                        R.string.coordenadas,
+                        lat.toString(),
+                        lng.toString()
+                    )
 
                 } else {
 
@@ -135,15 +140,6 @@ class CreateSetlistActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (nombreGrupo.isBlank()) {
-                Toast.makeText(this, "Ingresá el nombre del grupo", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (ubicacion.isBlank()) {
-                Toast.makeText(this, "Ingresá una ubicación", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
 
             if (viewModel.pdfsSeleccionados.value.isNullOrEmpty()) {
                 Toast.makeText(this, "Subí al menos un PDF", Toast.LENGTH_SHORT).show()

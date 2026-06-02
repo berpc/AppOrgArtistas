@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5"
+    android:background="#0F172A"
     android:padding="16dp">
 
     <!-- Título -->
@@ -14,7 +14,7 @@
         android:text="Capturar Partitura"
         android:textSize="26sp"
         android:textStyle="bold"
-        android:textColor="#222222" />
+        android:textColor="#FFFFFF" />
 
     <!-- Subtitulo -->
     <TextView
@@ -23,7 +23,15 @@
         android:layout_marginTop="4dp"
         android:text="Tomá una foto para convertirla en PDF"
         android:textSize="14sp"
-        android:textColor="#777777" />
+        android:textColor="#94A3B8" />
+    <TextView
+        android:id="@+id/tvPageCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text=" 0 páginas capturadas"
+        android:textColor="#60A5FA"
+        android:textStyle="bold"/>
 
     <!-- Vista previa -->
     <androidx.recyclerview.widget.RecyclerView
@@ -32,7 +40,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:padding="8dp"
+        android:padding="12dp"
         android:clipToPadding="false" />
 
     <!-- Botón foto -->
@@ -41,8 +49,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:backgroundTint="#6B4EFF"
-        android:text="Tomar Foto"
+        android:backgroundTint="#EA580C"
+        android:text="Capturar Página"
         android:textColor="#FFFFFF" />
 
     <!-- Botón usar -->
@@ -51,8 +59,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:backgroundTint="#4CAF50"
-        android:text="Guardar"
+        android:backgroundTint="#16A34A"
+        android:textStyle="bold"
+        android:text="📄 Generar PDF"
         android:textColor="#FFFFFF" />
 
 </LinearLayout>
