@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5"
+    android:background="#0F172A"
     android:padding="16dp">
 
     <!-- Encabezado -->
@@ -22,18 +22,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Mis Setlists"
+            android:text="@string/tv_dashboard_mis_setlists"
             android:textSize="26sp"
             android:textStyle="bold"
-            android:textColor="#222222" />
+            android:textColor="#FFFFFF" />
 
         <!-- Logout -->
         <Button
             android:id="@+id/btnLogout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Salir"
-            android:backgroundTint="#E53935"
+            android:text="@string/btn_dashboard_salir"
+            android:backgroundTint="#DC2626"
             android:textColor="#FFFFFF" />
 
     </LinearLayout>
@@ -44,8 +44,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="@string/tv_dashboard_organiza_tus_partituras_y_canciones"
-        android:textColor="#777777"
+        android:textColor="#94A3B8"
         android:textSize="14sp" />
+
 
     <!-- Botón nuevo -->
     <Button
@@ -54,7 +55,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="@string/btn_dashboard_crear_nuevo_setlist"
-        android:backgroundTint="#6B4EFF"
+        android:backgroundTint="#2563EB"
         android:textColor="#FFFFFF" />
     <Button
         android:id="@+id/btnUnirseSetlist"

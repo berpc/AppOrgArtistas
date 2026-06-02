@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="#0F172A">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
             android:text="@string/title_activity_create_nuevo_setlist"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="#222222" />
+            android:textColor="#FFFFFF" />
 
         <!-- Subtitulo -->
         <TextView
@@ -28,7 +28,7 @@
             android:layout_marginTop="4dp"
             android:text="@string/subtitle_activity_create_carga_tus_partituras_y_datos_del_evento"
             android:textSize="14sp"
-            android:textColor="#777777" />
+            android:textColor="#94A3B8" />
 
         <!-- Nombre -->
         <EditText
@@ -36,9 +36,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:backgroundTint="#6B4EFF"
-            android:hint="Nombre del Setlist"
+            android:hint="@string/hint_create_nombre_del_setlist"
             android:inputType="textCapWords"
+            android:background="@drawable/bg_edittext"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
             android:padding="14dp" />
 
         <!-- Grupo -->
@@ -47,9 +49,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#6B4EFF"
-            android:hint="Grupo o artista"
+            android:hint="@string/hint_create_grupo_o_artista"
             android:inputType="textCapWords"
+            android:background="@drawable/bg_edittext"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
             android:padding="14dp" />
 
         <!-- Ubicación -->
@@ -61,43 +65,57 @@
             android:backgroundTint="#6B4EFF"
             android:hint="@string/text_create_ubicacion_del_evento"
             android:inputType="textCapSentences"
+            android:background="@drawable/bg_edittext"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
             android:padding="14dp" />
+
         <TextView
             android:id="@+id/tvCoordenadas"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Lat: - | Lng: -"
-            android:textColor="#666666"/>
+            android:textColor="#60A5FA"/>
         <!-- Botón ubicacion -->
         <Button
             android:id="@+id/btnUbicacion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:backgroundTint="#2196F3"
             android:text="@string/btn_activity_create_obtener_ubicacion_actual"
+            android:backgroundTint="#2563EB"
             android:textColor="#FFFFFF"/>
 
-        <!-- Botón PDF -->
-        <Button
-            android:id="@+id/btnSubirLocal"
+        <!-- Botón PDF + camara -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:backgroundTint="#6B4EFF"
-            android:text="@string/btn_activity_createsubir_pdf"
-            android:textColor="#FFFFFF" />
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
 
-        <!-- Botón Cámara -->
-        <Button
-            android:id="@+id/btnCamara"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:backgroundTint="#FF9800"
-            android:text="@string/btn_activity_create_tomar_foto"
-            android:textColor="#FFFFFF" />
+            <Button
+                android:id="@+id/btnSubirLocal"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="@string/btn_create_subirpdf"
+                android:backgroundTint="#2563EB"
+                android:textColor="#FFFFFF"/>
+
+            <Space
+                android:layout_width="8dp"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btnCamara"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="@string/btn_create_subircamara"
+                android:backgroundTint="#EA580C"
+                android:textColor="#FFFFFF"/>
+        </LinearLayout>
 
         <!-- Texto archivo -->
         <TextView
@@ -106,16 +124,17 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="@string/btn_activity_create_ningun_archivo_seleccionado"
-            android:textColor="#777777" />
+            android:textColor="#94A3B8" />
 
         <!-- Botón guardar -->
         <Button
             android:id="@+id/btnGuardarSetlist"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_marginTop="32dp"
-            android:backgroundTint="#4CAF50"
-            android:text="@string/btn_activity_create_crear_setlist"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:backgroundTint="#16A34A"
             android:textColor="#FFFFFF" />
 
     </LinearLayout>

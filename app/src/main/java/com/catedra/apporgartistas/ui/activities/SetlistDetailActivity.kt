@@ -113,7 +113,8 @@ class SetlistDetailActivity : AppCompatActivity() {
 
     private fun configurarListaDePartituras(setlist: Setlist) {
         titulosVisuales = setlist.partituras.map { it.nombre }.toMutableList()
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, titulosVisuales)
+       // adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, titulosVisuales)
+        val adapter = ArrayAdapter(this, R.layout.item_partitura, titulosVisuales)
         listView.adapter = adapter
 
         listView.setOnItemClickListener { _, _, position, _ ->

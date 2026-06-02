@@ -1,6 +1,12 @@
 package com.catedra.apporgartistas.ui.activities
+
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -8,20 +14,16 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.catedra.apporgartistas.R
-import com.catedra.apporgartistas.viewmodels.CreateSetlistViewModel
-import com.google.firebase.auth.FirebaseAuth
-import android.content.Intent
-import com.catedra.apporgartistas.activities.CameraActivity
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
-import com.google.android.gms.location.LocationServices
 import androidx.core.net.toUri
-
+import com.catedra.apporgartistas.R
+import com.catedra.apporgartistas.activities.CameraActivity
+import com.catedra.apporgartistas.viewmodels.CreateSetlistViewModel
+import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
 
 class CreateSetlistActivity : AppCompatActivity() {
+
     private val viewModel: CreateSetlistViewModel by viewModels()
 
 
@@ -51,7 +53,6 @@ class CreateSetlistActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_setlist)
 
-
         supportActionBar?.title = "Nuevo Setlist"
 
         val btnSubirLocal = findViewById<Button>(R.id.btnSubirLocal)
@@ -63,8 +64,9 @@ class CreateSetlistActivity : AppCompatActivity() {
         val etUbicacion = findViewById<EditText>(R.id.etUbicacion)
         val tvCoordenadas = findViewById<TextView>(R.id.tvCoordenadas)
         val btnUbicacion = findViewById<Button>(R.id.btnUbicacion)
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        val fusedLocationClient =
+            LocationServices.getFusedLocationProviderClient(this)
 
         btnSubirLocal.setOnClickListener {
             selectorDePdf.launch("application/pdf")
@@ -79,16 +81,18 @@ class CreateSetlistActivity : AppCompatActivity() {
                 )
             }
         }
+
         viewModel.guardadoExitoso.observe(this) { exito ->
             if (exito == true) {
                 Toast.makeText(this,
                     getString(R.string.message_create_setlist_creado_con_xito), Toast.LENGTH_SHORT).show()
                 finish() // Cierra esta pantalla y vuelve al Dashboard
-            } else {
+            } else if (exito == false){
                 Toast.makeText(this,
                     getString(R.string.message_create_hubo_un_error_al_guardar), Toast.LENGTH_LONG).show()
             }
         }
+
         btnUbicacion.setOnClickListener {
 
             if (ActivityCompat.checkSelfPermission(
@@ -96,27 +100,19 @@ class CreateSetlistActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-
                 ActivityCompat.requestPermissions(
                     this,
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                     100
                 )
-
                 return@setOnClickListener
             }
 
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-
                 if (location != null) {
-
-                    val lat = location.latitude
-                    val lng = location.longitude
-
-                    tvCoordenadas.text = "Lat: $lat | Lng: $lng"
-
+                    tvCoordenadas.text =
+                        "Lat: ${location.latitude} | Lng: ${location.longitude}"
                 } else {
-
                     Toast.makeText(
                         this,
                         getString(R.string.message_create_no_se_pudo_obtener_ubicaci_n),
@@ -127,19 +123,16 @@ class CreateSetlistActivity : AppCompatActivity() {
         }
 
         btnCamara.setOnClickListener {
-
             val intent = Intent(this, CameraActivity::class.java)
             abrirCamara.launch(intent)
-
         }
 
         btnGuardar.setOnClickListener {
+
             val titulo = etTitulo.text.toString()
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: getString(R.string.default_create_usuario_anonimo)
             val nombreGrupo = etNombreGrupo.text.toString()
             val ubicacion = etUbicacion.text.toString()
-
-            // VALIDACIONES
             if (titulo.isBlank()) {
                 Toast.makeText(this,
                     getString(R.string.message_create_ingresa_un_titulo), Toast.LENGTH_SHORT).show()
@@ -158,7 +151,6 @@ class CreateSetlistActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // ACÁ ESTÁ EL CAMBIO
             if (viewModel.archivosSeleccionados.value.isNullOrEmpty()) {
                 Toast.makeText(this,
                     getString(R.string.message_create_subi_al_menos_un_pdf_o_foto), Toast.LENGTH_SHORT).show()
@@ -170,31 +162,35 @@ class CreateSetlistActivity : AppCompatActivity() {
             viewModel.guardarSetlist(titulo, nombreGrupo, ubicacion, userId)
         }
     }
-    @android.annotation.SuppressLint("Range")
+
+    @SuppressLint("Range")
     private fun obtenerNombreDelArchivo(uri: Uri): String {
         var result: String? = null
         if (uri.scheme == "content") {
             contentResolver.query(uri, null, null, null, null)?.use { cursor ->
                 if (cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME))
+                    result = cursor.getString(
+                        cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    )
                 }
             }
         }
+
         if (result == null) {
             result = uri.path?.let { path ->
                 val cut = path.lastIndexOf('/')
                 if (cut != -1) path.substring(cut + 1) else path
             }
         }
-        // Le sacamos la extensión .pdf si la tiene para que quede más limpio
         return result?.substringBeforeLast(".") ?: getString(R.string.new_partitura)
     }
 
     // 2. Mostrar el cuadro de diálogo para editar el nombre
     private fun pedirNombrePartitura(uri: Uri, nombreSugerido: String) {
+
         val input = EditText(this)
         input.setText(nombreSugerido)
-        input.setSelection(input.text.length) // Pone el cursor al final
+        input.setSelection(input.text.length)
 
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(getString(R.string.default_create_nombre_de_la_partitura))

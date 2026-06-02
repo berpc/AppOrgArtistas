@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="?android:attr/selectableItemBackground">
+    android:layout_marginBottom="12dp"
+    android:background="#111C33">
 
     <TextView
         android:id="@+id/tvTituloSetlist"
@@ -12,30 +13,30 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#000000" />
+        android:textColor="#F8FAFC" />
+
     <TextView
         android:id="@+id/tvNombreGrupo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14sp"
-        android:textColor="#333333"
-        android:layout_marginTop="2dp" />
+        android:textColor="#94A3B8"
+        android:layout_marginTop="4dp" />
 
     <TextView
         android:id="@+id/tvUbicacion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="#666666"
-        android:drawablePadding="4dp"
-        android:layout_marginTop="2dp" />
-
+        android:textSize="13sp"
+        android:textColor="#64748B"
+        android:layout_marginTop="4dp" />
 
     <TextView
         android:id="@+id/tvCantidadPartituras"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="#666666" />
+        android:textSize="13sp"
+        android:textColor="#94A3B8"
+        android:layout_marginTop="6dp" />
 
 </LinearLayout>
