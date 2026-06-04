@@ -18,6 +18,7 @@ import org.json.JSONObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 class SetlistDashboardViewModel : ViewModel() {
 
     private val firestore = FirebaseFirestore.getInstance()
@@ -30,6 +31,11 @@ class SetlistDashboardViewModel : ViewModel() {
     val suscripcionExitosa: LiveData<Boolean> = _suscripcionExitosa
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
+    val client = OkHttpClient.Builder()
+        .connectTimeout(60, TimeUnit.SECONDS) // Espera 60 segundos para conectar
+        .readTimeout(60, TimeUnit.SECONDS)    // Espera 60 segundos por la respuesta
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .build()
 
     private fun getCurrentUserId(): String {
         return FirebaseAuth.getInstance().currentUser?.uid ?: "usuario_anonimo"
@@ -117,7 +123,7 @@ class SetlistDashboardViewModel : ViewModel() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // REEMPLAZÁ ESTA URL POR LA TUYA DE RENDER
-                val url = "https://messaging-service-lfyh.onrender.com"
+                val url = "https://messaging-service-lfyh.onrender.com/send-notification"
 
                 val jsonBody = JSONObject().apply {
                     put("token", tokenDelDirector)
@@ -132,7 +138,6 @@ class SetlistDashboardViewModel : ViewModel() {
                     .post(requestBody)
                     .build()
 
-                val client = OkHttpClient()
                 client.newCall(request).execute()
 
             } catch (e: Exception) {

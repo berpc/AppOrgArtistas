@@ -20,6 +20,12 @@ import androidx.appcompat.app.AlertDialog
 import android.text.InputFilter
 import android.view.View
 import android.widget.Toast
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.firebase.messaging.FirebaseMessaging
 
 
 class SetlistDashboardActivity : AppCompatActivity() {
@@ -30,6 +36,37 @@ class SetlistDashboardActivity : AppCompatActivity() {
     // Variables para el modo de selección
     private var actionMode: ActionMode? = null
     private var setlistSeleccionadoParaBorrar: Setlist? = null
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            obtenerYGuardarToken()
+        }
+    }
+
+    private fun obtenerYGuardarToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                loginViewModel.guardarTokenFcm(token)
+            }
+        }
+    }
+
+    private fun verificarPermisoNotificaciones() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                obtenerYGuardarToken()
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            obtenerYGuardarToken()
+        }
+    }
 
     private fun mostrarDialogoIngresarCodigo() {
         val input = android.widget.EditText(this).apply {
@@ -95,6 +132,7 @@ class SetlistDashboardActivity : AppCompatActivity() {
         configurarBotonLogout()
         configurarRecyclerView()
         observarViewModel()
+        verificarPermisoNotificaciones()
         btnUnirse.setOnClickListener {
             mostrarDialogoIngresarCodigo()
         }

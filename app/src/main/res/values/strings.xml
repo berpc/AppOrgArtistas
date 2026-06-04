@@ -152,4 +152,9 @@
     <string name="tv_activitycamera_0_paginas_capturadas">0 páginas capturadas</string>
     <string name="tv_dashboard_mis_setlists">Mis Setlists</string>
     <string name="btn_dashboard_salir">Salir</string>
+
+    <!-- Notification Channel -->
+    <string name="notif_channel_id">musicos_updates</string>
+    <string name="notif_channel_name">Actualizaciones de Músicos</string>
+    <string name="notif_channel_desc">Notificaciones cuando alguien se une a tus setlists</string>
 </resources>
