@@ -128,6 +128,10 @@ class SetlistDashboardActivity : AppCompatActivity() {
         supportActionBar?.title = getString(R.string.title_dashboard_mis_setlists)
         val btnUnirse = findViewById<Button>(R.id.btnUnirseSetlist)
 
+        val searchBar = findViewById<com.google.android.material.search.SearchBar>(R.id.search_bar)
+        val searchView = findViewById<com.google.android.material.search.SearchView>(R.id.search_view)
+
+        searchView.setupWithSearchBar(searchBar)
         configurarBotonNuevo()
         configurarBotonLogout()
         configurarRecyclerView()
