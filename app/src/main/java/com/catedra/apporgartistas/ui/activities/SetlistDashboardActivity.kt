@@ -26,6 +26,8 @@ import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.core.app.ActivityOptionsCompat
 
 
 class SetlistDashboardActivity : AppCompatActivity() {
@@ -36,6 +38,7 @@ class SetlistDashboardActivity : AppCompatActivity() {
     // Variables para el modo de selección
     private var actionMode: ActionMode? = null
     private var setlistSeleccionadoParaBorrar: Setlist? = null
+    private var isFabExpanded = false
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -120,26 +123,70 @@ class SetlistDashboardActivity : AppCompatActivity() {
             // Acá podrías decirle al adapter que quite el resaltado de fondo si lo tuvieras
         }
     }
+    private fun configurarFabMenu() {
+        val fabMain = findViewById<FloatingActionButton>(R.id.fab_main)
+
+        // Capturamos los contenedores completos usando tus IDs
+        val btnNuevoSetlist = findViewById<View>(R.id.btnNuevoSetlist)
+        val btnUnirseSetlist = findViewById<View>(R.id.btnUnirseSetlist)
+
+        fabMain.setOnClickListener {
+            isFabExpanded = !isFabExpanded
+
+            if (isFabExpanded) {
+                // Abrir menú: hacemos visibles los contenedores
+                btnNuevoSetlist.visibility = View.VISIBLE
+                btnUnirseSetlist.visibility = View.VISIBLE
+
+                btnNuevoSetlist.alpha = 0f
+                btnUnirseSetlist.alpha = 0f
+                btnNuevoSetlist.scaleX = 0.5f; btnNuevoSetlist.scaleY = 0.5f
+                btnUnirseSetlist.scaleX = 0.5f; btnUnirseSetlist.scaleY = 0.5f
+
+                // Animamos todo junto (botón + texto)
+                btnNuevoSetlist.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(200).start()
+                btnUnirseSetlist.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(200).start()
+                fabMain.animate().rotation(45f).setDuration(200).start()
+            } else {
+                // Cerrar menú
+                btnNuevoSetlist.animate().alpha(0f).scaleX(0.5f).scaleY(0.5f).setDuration(200).start()
+                btnUnirseSetlist.animate().alpha(0f).scaleX(0.5f).scaleY(0.5f).setDuration(200).start()
+                fabMain.animate().rotation(0f).setDuration(200).start()
+
+                btnNuevoSetlist.postDelayed({ btnNuevoSetlist.visibility = View.GONE }, 200)
+                btnUnirseSetlist.postDelayed({ btnUnirseSetlist.visibility = View.GONE }, 200)
+            }
+        }
+
+        // Acciones asignadas directamente a tus variables
+        btnNuevoSetlist.setOnClickListener {
+            startActivity(Intent(this, CreateSetlistActivity::class.java))
+            fabMain.performClick() // Cierra el menú automáticamente al navegar
+        }
+
+        btnUnirseSetlist.setOnClickListener {
+            mostrarDialogoIngresarCodigo()
+            fabMain.performClick() // Cierra el menú tras abrir el diálogo
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setlist_dashboard)
         supportActionBar?.title = getString(R.string.title_dashboard_mis_setlists)
-        val btnUnirse = findViewById<Button>(R.id.btnUnirseSetlist)
 
         val searchBar = findViewById<com.google.android.material.search.SearchBar>(R.id.search_bar)
         val searchView = findViewById<com.google.android.material.search.SearchView>(R.id.search_view)
-
         searchView.setupWithSearchBar(searchBar)
-        configurarBotonNuevo()
+
+        // Llamamos a la configuración del menú de botones flotantes
+        configurarFabMenu()
         configurarBotonLogout()
         configurarRecyclerView()
         observarViewModel()
         verificarPermisoNotificaciones()
-        btnUnirse.setOnClickListener {
-            mostrarDialogoIngresarCodigo()
-        }
+        configurarBottomNavigation()
     }
     // Usamos onResume para que, si el usuario vuelve de crear un setlist, la lista se actualice sola
     override fun onResume() {
@@ -188,7 +235,7 @@ class SetlistDashboardActivity : AppCompatActivity() {
     }
 
     private fun configurarBotonNuevo() {
-        val btnNuevoSetlist = findViewById<Button>(R.id.btnNuevoSetlist)
+        val btnNuevoSetlist = findViewById<Button>(R.id.fab_inner_nuevo)
         btnNuevoSetlist.setOnClickListener {
             val intent = Intent(this, CreateSetlistActivity::class.java)
             startActivity(intent)
@@ -221,5 +268,30 @@ class SetlistDashboardActivity : AppCompatActivity() {
                 mode.finish()
             }
             .show()
+    }
+    private fun configurarBottomNavigation() {
+        val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav.selectedItemId = R.id.item_1 // O el ID que uses para la tab principal
+
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.item_1 -> true
+                R.id.item_2 -> { // Tu ID para la pestaña del medio
+                    val intent = Intent(this, DirectorDashboardActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                    }
+
+                    // Creamos las opciones anulando las animaciones de entrada y salida
+                    val options = ActivityOptionsCompat.makeCustomAnimation(this, 0, 0).toBundle()
+
+                    // Lanzamos la activity pasándole las opciones
+                    startActivity(intent, options)
+
+                    true
+                }
+                // Manejar R.id.nav_mine si lo tenés
+                else -> false
+            }
+        }
     }
 }

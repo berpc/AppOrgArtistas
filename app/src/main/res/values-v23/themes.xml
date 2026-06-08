@@ -5,6 +5,7 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
-
+        <item name="materialSearchBarStyle">@style/Widget.Material3.SearchBar</item>
+        <item name="materialSearchViewStyle">@style/Widget.Material3.SearchView</item>
     </style>
 </resources>

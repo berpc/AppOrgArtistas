@@ -70,6 +70,17 @@
             android:name=".ui.activities.PdfViewerActivity"
             android:exported="false"
             android:parentActivityName=".ui.activities.SetlistDetailActivity"/>
+        <!-- Director Dashboard -->
+        <activity
+            android:name=".ui.activities.DirectorDashboardActivity"
+            android:exported="false" />
+        <activity android:name=".ui.activities.ShowsDashboardActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.activities.DirectorDashboardActivity" />
+
+        <activity android:name=".ui.activities.ShowDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.activities.ShowsDashboardActivity" />
 
         <!-- Firebase Messaging Service -->
         <service

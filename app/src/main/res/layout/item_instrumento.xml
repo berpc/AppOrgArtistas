@@ -1,0 +1,19 @@
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="100dp"
+    android:layout_height="100dp"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="50dp"
+    app:cardBackgroundColor="#1E293B">
+
+    <TextView
+        android:id="@+id/tvNombreInstrumento"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="Flauta 1"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:padding="8dp" />
+</com.google.android.material.card.MaterialCardView>

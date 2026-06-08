@@ -47,24 +47,14 @@
 
         <com.google.android.material.search.SearchBar
             android:id="@+id/search_bar"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
-            android:hint="Buscar setlist"
-            app:startIconDrawable="@android:drawable/ic_menu_search"
-            app:shapeAppearanceOverlay="@style/CircleImageView"
-            app:endIconMode="clear_text">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:maxLines="1" />
-
-        </com.google.android.material.search.SearchBar>
+            android:hint="Buscar setlist..."
+            app:backgroundTint="#1E293B"
+            app:itemIconTint="#94A3B8"
+            app:itemTextColor="#94A3B8" />
 
 
         <!-- Botón nuevo -->
@@ -85,15 +75,87 @@
                 android:paddingBottom="80dp"
                 tools:listitem="@layout/item_setlist" />
 
+            <LinearLayout
+                android:id="@+id/btnUnirseSetlist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/btnNuevoSetlist"
+                app:layout_constraintEnd_toEndOf="@id/fab_main"
+                app:layout_constraintStart_toStartOf="@id/fab_main">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_inner_unirse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:fabSize="mini"
+                    android:src="@android:drawable/ic_menu_share"
+                    app:backgroundTint="#4CAF50"
+                    app:tint="#FFFFFF"
+                    android:clickable="false" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Código"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:shadowColor="#000000"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="3" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnNuevoSetlist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/fab_main"
+                app:layout_constraintEnd_toEndOf="@id/fab_main"
+                app:layout_constraintStart_toStartOf="@id/fab_main">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_inner_nuevo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:fabSize="mini"
+                    android:src="@android:drawable/ic_menu_add"
+                    app:backgroundTint="#2563EB"
+                    app:tint="#FFFFFF"
+                    android:clickable="false" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Crear"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:shadowColor="#000000"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="3" />
+            </LinearLayout>
+
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_nuevo_setlist"
+                android:id="@+id/fab_main"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
+                android:src="@drawable/ic_add"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:src="@drawable/ic_add" />
+                app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView

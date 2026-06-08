@@ -3,5 +3,7 @@
     <style name="Base.Theme.AppOrgArtistas" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="materialSearchBarStyle">@style/Widget.Material3.SearchBar</item>
+        <item name="materialSearchViewStyle">@style/Widget.Material3.SearchView</item>
     </style>
 </resources>
