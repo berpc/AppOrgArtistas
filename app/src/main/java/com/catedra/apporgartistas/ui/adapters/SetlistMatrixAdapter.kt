@@ -1,9 +1,10 @@
 package com.catedra.apporgartistas.ui.adapters
 
-import android.R.attr.singleLine
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
@@ -19,8 +20,17 @@ class SetlistMatrixAdapter(
     private val onCrearCancionConfirmada: (nombre: String) -> Unit,
     private val onEditarCancionConfirmada: (setlistItem: SetlistMasterItem, nuevoNombre: String) -> Unit,
     private val onBorrarCancionConfirmada: (setlistItem: SetlistMasterItem) -> Unit,
-    private val onCeldaClick: (instrumento: Instrumento, setlistItem: SetlistMasterItem) -> Unit
-) : RecyclerView.Adapter<SetlistMatrixAdapter.MatrixViewHolder>(){
+    private val onCeldaClick: (instrumento: Instrumento, setlistItem: SetlistMasterItem) -> Unit,
+    private val onStartDrag: (RecyclerView.ViewHolder) -> Unit
+) : RecyclerView.Adapter<SetlistMatrixAdapter.MatrixViewHolder>() {
+
+    companion object {
+        private const val ROW_HEIGHT = 80
+        private const val HANDLE_WIDTH = 48
+        private const val ORDER_WIDTH = 48
+        private const val TITLE_WIDTH = 240
+        private const val CELL_WIDTH = 140
+    }
 
     class MatrixViewHolder(val layout: LinearLayout) : RecyclerView.ViewHolder(layout)
 
@@ -30,7 +40,7 @@ class SetlistMatrixAdapter(
             gravity = Gravity.CENTER_VERTICAL
             layoutParams = RecyclerView.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                64
+                ROW_HEIGHT
             )
         }
 
@@ -52,21 +62,27 @@ class SetlistMatrixAdapter(
     private fun crearFilaNueva(holder: MatrixViewHolder) {
         val context = holder.itemView.context
 
-        val tvOrdenVacio = TextView(context).apply {
+        val espacioHandle = TextView(context).apply {
             text = ""
             layoutParams = LinearLayout.LayoutParams(
-                40,
-                56
-            ).apply {
-                marginStart = 4
-            }
+                HANDLE_WIDTH,
+                ROW_HEIGHT
+            )
+        }
+
+        val espacioOrden = TextView(context).apply {
+            text = ""
+            layoutParams = LinearLayout.LayoutParams(
+                ORDER_WIDTH,
+                ROW_HEIGHT
+            )
         }
 
         val inputNuevaObra = EditText(context).apply {
             hint = "Escribir obra..."
             setTextColor(Color.WHITE)
             setHintTextColor(Color.GRAY)
-            textSize = 14f
+            textSize = 15f
 
             maxLines = 1
             inputType = android.text.InputType.TYPE_CLASS_TEXT
@@ -78,10 +94,10 @@ class SetlistMatrixAdapter(
             setPadding(0, 0, 0, 0)
 
             layoutParams = LinearLayout.LayoutParams(
-                216,
-                56
+                TITLE_WIDTH,
+                ROW_HEIGHT
             ).apply {
-                marginEnd = 4
+                marginEnd = 6
             }
         }
 
@@ -106,7 +122,8 @@ class SetlistMatrixAdapter(
             }
         }
 
-        holder.layout.addView(tvOrdenVacio)
+        holder.layout.addView(espacioHandle)
+        holder.layout.addView(espacioOrden)
         holder.layout.addView(inputNuevaObra)
 
         instrumentos.forEach {
@@ -114,30 +131,50 @@ class SetlistMatrixAdapter(
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun crearFilaExistente(holder: MatrixViewHolder, position: Int) {
         val context = holder.itemView.context
         val setlistItem = canciones[position]
 
+        val tvDragHandle = TextView(context).apply {
+            text = "⋮⋮"
+            setTextColor(Color.parseColor("#94A3B8"))
+            textSize = 18f
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            contentDescription = "Arrastrar para cambiar el orden"
+
+            layoutParams = LinearLayout.LayoutParams(
+                HANDLE_WIDTH,
+                ROW_HEIGHT
+            )
+
+            setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                    onStartDrag(holder)
+                }
+                false
+            }
+        }
+
         val tvOrden = TextView(context).apply {
             text = "${position + 1}-"
             setTextColor(Color.WHITE)
-            textSize = 14f
+            textSize = 15f
             gravity = Gravity.CENTER_VERTICAL
             includeFontPadding = false
 
             layoutParams = LinearLayout.LayoutParams(
-                40,
-                56
-            ).apply {
-                marginStart = 4
-            }
+                ORDER_WIDTH,
+                ROW_HEIGHT
+            )
         }
 
         val inputObra = EditText(context).apply {
             setText(setlistItem.nombre)
             setTextColor(Color.WHITE)
             setHintTextColor(Color.GRAY)
-            textSize = 14f
+            textSize = 15f
 
             maxLines = 1
             inputType = android.text.InputType.TYPE_CLASS_TEXT
@@ -149,10 +186,10 @@ class SetlistMatrixAdapter(
             setPadding(0, 0, 0, 0)
 
             layoutParams = LinearLayout.LayoutParams(
-                216,
-                56
+                TITLE_WIDTH,
+                ROW_HEIGHT
             ).apply {
-                marginEnd = 4
+                marginEnd = 6
             }
         }
 
@@ -179,11 +216,13 @@ class SetlistMatrixAdapter(
             }
         }
 
+        holder.layout.addView(tvDragHandle)
         holder.layout.addView(tvOrden)
         holder.layout.addView(inputObra)
 
         instrumentos.forEach { instrumento ->
-            val tienePdf = instrumento.pdfsPorSetlistItem[setlistItem.id].isNullOrBlank().not()
+            val partitura = instrumento.pdfsPorSetlistItem[setlistItem.id]
+            val tienePdf = partitura != null && partitura.url.isNotBlank()
 
             val celda = TextView(context).apply {
                 text = if (tienePdf) "✓" else "✗"
@@ -191,16 +230,16 @@ class SetlistMatrixAdapter(
                     if (tienePdf) Color.parseColor("#22C55E")
                     else Color.parseColor("#EF4444")
                 )
-                textSize = 22f
+                textSize = 24f
                 gravity = Gravity.CENTER
                 setBackgroundColor(Color.parseColor("#1E293B"))
 
                 layoutParams = LinearLayout.LayoutParams(
-                    120,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    CELL_WIDTH,
+                    ROW_HEIGHT
                 ).apply {
-                    marginStart = 4
-                    marginEnd = 4
+                    marginStart = 6
+                    marginEnd = 6
                     topMargin = 4
                     bottomMargin = 4
                 }
@@ -219,9 +258,12 @@ class SetlistMatrixAdapter(
             text = ""
             setBackgroundColor(Color.parseColor("#0F172A"))
 
-            layoutParams = LinearLayout.LayoutParams(120, ViewGroup.LayoutParams.MATCH_PARENT).apply {
-                marginStart = 4
-                marginEnd = 4
+            layoutParams = LinearLayout.LayoutParams(
+                CELL_WIDTH,
+                ROW_HEIGHT
+            ).apply {
+                marginStart = 6
+                marginEnd = 6
                 topMargin = 4
                 bottomMargin = 4
             }
@@ -239,5 +281,23 @@ class SetlistMatrixAdapter(
         canciones = nuevasCanciones.toMutableList()
         instrumentos = nuevosInstrumentos
         notifyDataSetChanged()
+    }
+
+    fun moverCancion(fromPosition: Int, toPosition: Int) {
+        if (fromPosition !in canciones.indices) return
+        if (toPosition !in canciones.indices) return
+
+        val itemMovido = canciones.removeAt(fromPosition)
+        canciones.add(toPosition, itemMovido)
+
+        notifyItemMoved(fromPosition, toPosition)
+    }
+
+    fun obtenerCancionesActuales(): List<SetlistMasterItem> {
+        return canciones.toList()
+    }
+
+    fun esFilaNueva(position: Int): Boolean {
+        return position == canciones.size
     }
 }

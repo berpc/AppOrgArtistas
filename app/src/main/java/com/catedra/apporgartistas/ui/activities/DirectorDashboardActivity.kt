@@ -168,7 +168,11 @@ class DirectorDashboardActivity : AppCompatActivity() {
                     // Ya estamos acá
                     true
                 }
-                // R.id.nav_mine -> { ... }
+                R.id.nav_show_setlist -> {
+                    startActivity(Intent(this, ShowSetlistActivity::class.java))
+                    finish()
+                    true
+                }
                 else -> false
             }
         }

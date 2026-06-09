@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0F172A"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/tvTituloShowViewer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Show"
+        android:textColor="#FFFFFF"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvFechaShowViewer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fecha"
+        android:textColor="#CBD5E1"
+        android:textSize="16sp"
+        android:layout_marginTop="6dp" />
+
+    <TextView
+        android:id="@+id/tvInstrumentoViewer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Instrumento"
+        android:textColor="#38BDF8"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginTop="18dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Partituras"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="10dp" />
+
+    <ListView
+        android:id="@+id/lvPartiturasInstrumentoViewer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="#334155"
+        android:dividerHeight="1dp" />
+
+</LinearLayout>

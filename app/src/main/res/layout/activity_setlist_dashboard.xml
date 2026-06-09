@@ -7,11 +7,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0F172A">
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:tools="http://schemas.android.com/tools"
         android:orientation="vertical"
         android:background="#0F172A">
 
@@ -21,9 +20,9 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginHorizontal="16dp">
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp">
 
-            <!-- Título -->
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -33,7 +32,6 @@
                 android:textStyle="bold"
                 android:textColor="#FFFFFF" />
 
-            <!-- Logout -->
             <Button
                 android:id="@+id/btnLogout"
                 android:layout_width="wrap_content"
@@ -43,7 +41,6 @@
                 android:textColor="#FFFFFF" />
 
         </LinearLayout>
-
 
         <com.google.android.material.search.SearchBar
             android:id="@+id/search_bar"
@@ -56,10 +53,7 @@
             app:itemIconTint="#94A3B8"
             app:itemTextColor="#94A3B8" />
 
-
-        <!-- Botón nuevo -->
-
-        <!-- Lista -->
+        <!-- Zona principal -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -67,14 +61,57 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="0dp">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvSetlists"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+            <!-- Contenido scrolleable -->
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/scrollContenidoSetlists"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:fillViewport="true"
                 android:clipToPadding="false"
-                android:paddingBottom="80dp"
-                tools:listitem="@layout/item_setlist" />
+                android:paddingBottom="100dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Setlists normales -->
+                    <TextView
+                        android:id="@+id/tvTituloSetlistsNormales"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Setlists"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvSetlists"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:clipToPadding="false"
+                        tools:listitem="@layout/item_setlist" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvSetlistsInstrumento"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:clipToPadding="false"
+                        tools:listitem="@layout/item_setlist" />
+
+                </LinearLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+            <!-- Botón Unirse por código -->
             <LinearLayout
                 android:id="@+id/btnUnirseSetlist"
                 android:layout_width="wrap_content"
@@ -109,8 +146,10 @@
                     android:shadowDx="1"
                     android:shadowDy="1"
                     android:shadowRadius="3" />
+
             </LinearLayout>
 
+            <!-- Botón Crear setlist -->
             <LinearLayout
                 android:id="@+id/btnNuevoSetlist"
                 android:layout_width="wrap_content"
@@ -145,8 +184,10 @@
                     android:shadowDx="1"
                     android:shadowDy="1"
                     android:shadowRadius="3" />
+
             </LinearLayout>
 
+            <!-- Botón principal -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_main"
                 android:layout_width="wrap_content"
@@ -156,6 +197,7 @@
                 android:src="@drawable/ic_add"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -165,13 +207,13 @@
             app:menu="@menu/bottom_navigation_menu" />
 
     </LinearLayout>
+
     <com.google.android.material.search.SearchView
         android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:hint="Escribe para buscar..."
         app:backgroundTint="#0F172A"
-        app:layout_anchor="@id/search_bar">
+        app:layout_anchor="@id/search_bar" />
 
-    </com.google.android.material.search.SearchView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

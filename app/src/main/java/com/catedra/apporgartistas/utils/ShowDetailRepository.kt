@@ -1,6 +1,7 @@
 package com.catedra.apporgartistas.utils
 
 import com.catedra.apporgartistas.data.models.SetlistMasterItem
+import com.catedra.apporgartistas.data.models.Show
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -38,5 +39,24 @@ class ShowDetailRepository {
             .document(instrumentoId)
             .update("pdfsPorSetlistItem.$setlistItemId", urlPdf)
             .await()
+    }
+    fun observarShow(
+        agrupacionId: String,
+        showId: String,
+        onChange: (Show?) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        db.collection("agrupaciones")
+            .document(agrupacionId)
+            .collection("shows")
+            .document(showId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    onError(error)
+                    return@addSnapshotListener
+                }
+
+                onChange(snapshot?.toObject(Show::class.java))
+            }
     }
 }

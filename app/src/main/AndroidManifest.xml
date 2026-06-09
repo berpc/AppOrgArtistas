@@ -81,6 +81,11 @@
         <activity android:name=".ui.activities.ShowDetailActivity"
             android:exported="false"
             android:parentActivityName=".ui.activities.ShowsDashboardActivity" />
+        <activity android:name=".ui.activities.InstrumentoDetailActivity" />
+
+        <activity android:name=".ui.activities.InstrumentoSetlistViewerActivity" />
+        <activity android:name=".ui.activities.ShowSetlistActivity" />
+        <activity android:name=".ui.activities.ShowSetlistViewerActivity" />
 
         <!-- Firebase Messaging Service -->
         <service

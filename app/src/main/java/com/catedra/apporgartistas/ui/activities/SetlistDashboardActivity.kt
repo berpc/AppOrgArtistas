@@ -28,13 +28,20 @@ import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.core.app.ActivityOptionsCompat
+import com.catedra.apporgartistas.ui.adapters.SetlistInstrumentoSuscriptoAdapter
+import android.text.Editable
+import android.text.TextWatcher
+import com.google.android.material.search.SearchBar
+import com.google.android.material.search.SearchView
 
 
 class SetlistDashboardActivity : AppCompatActivity() {
     private val viewModel: SetlistDashboardViewModel by viewModels()
     private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var adapter: SetlistAdapter
-
+    private lateinit var adapterInstrumentos: SetlistInstrumentoSuscriptoAdapter
+    private var listaSetlistsCompleta: List<Setlist> = emptyList()
+    private var textoBusquedaActual: String = ""
     // Variables para el modo de selección
     private var actionMode: ActionMode? = null
     private var setlistSeleccionadoParaBorrar: Setlist? = null
@@ -176,9 +183,7 @@ class SetlistDashboardActivity : AppCompatActivity() {
         setContentView(R.layout.activity_setlist_dashboard)
         supportActionBar?.title = getString(R.string.title_dashboard_mis_setlists)
 
-        val searchBar = findViewById<com.google.android.material.search.SearchBar>(R.id.search_bar)
-        val searchView = findViewById<com.google.android.material.search.SearchView>(R.id.search_view)
-        searchView.setupWithSearchBar(searchBar)
+
 
         // Llamamos a la configuración del menú de botones flotantes
         configurarFabMenu()
@@ -187,6 +192,59 @@ class SetlistDashboardActivity : AppCompatActivity() {
         observarViewModel()
         verificarPermisoNotificaciones()
         configurarBottomNavigation()
+        configurarBusqueda()
+    }
+    private fun configurarBusqueda() {
+        val searchBar = findViewById<SearchBar>(R.id.search_bar)
+        val searchView = findViewById<SearchView>(R.id.search_view)
+
+        searchView.setupWithSearchBar(searchBar)
+
+        searchView.editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+                // No usamos esto.
+            }
+
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+                textoBusquedaActual = s?.toString().orEmpty()
+                filtrarSetlists(textoBusquedaActual)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // No usamos esto.
+            }
+        })
+
+        searchView.editText.setOnEditorActionListener { _, _, _ ->
+            searchBar.setText(searchView.text)
+            searchView.hide()
+            false
+        }
+    }
+
+    private fun filtrarSetlists(texto: String) {
+        val consulta = texto.trim().lowercase()
+
+        if (consulta.isBlank()) {
+            adapter.actualizarLista(listaSetlistsCompleta)
+            return
+        }
+
+        val listaFiltrada = listaSetlistsCompleta.filter { setlist ->
+            setlist.titulo.lowercase().contains(consulta)
+        }
+
+        adapter.actualizarLista(listaFiltrada)
     }
     // Usamos onResume para que, si el usuario vuelve de crear un setlist, la lista se actualice sola
     override fun onResume() {
@@ -201,7 +259,6 @@ class SetlistDashboardActivity : AppCompatActivity() {
         adapter = SetlistAdapter(
             setlists = emptyList(),
             onItemClick = { setlistSeleccionado ->
-                // Si el modo de borrado está activo, un clic normal podría seleccionarlo también
                 if (actionMode == null) {
                     val intent = Intent(this, SetlistDetailActivity::class.java).apply {
                         putExtra("SETLIST_COMPLETO", setlistSeleccionado)
@@ -212,25 +269,53 @@ class SetlistDashboardActivity : AppCompatActivity() {
             onItemLongClick = { setlistSeleccionado ->
                 if (actionMode == null) {
                     setlistSeleccionadoParaBorrar = setlistSeleccionado
-                    // Arrancamos la barra de menú contextual
                     actionMode = startSupportActionMode(actionModeCallback)
                 }
             }
         )
+
         rvSetlists.adapter = adapter
+
+        val rvSetlistsInstrumento = findViewById<RecyclerView>(R.id.rvSetlistsInstrumento)
+        rvSetlistsInstrumento.layoutManager = LinearLayoutManager(this)
+
+        adapterInstrumentos = SetlistInstrumentoSuscriptoAdapter(
+            items = emptyList(),
+            onItemClick = { item ->
+                val intent = Intent(this, InstrumentoSetlistViewerActivity::class.java).apply {
+                    putExtra("CODIGO", item.codigo)
+                    putExtra("AGRUPACION_ID", item.agrupacionId)
+                    putExtra("SHOW_ID", item.showId)
+                    putExtra("INSTRUMENTO_ID", item.instrumentoId)
+                }
+
+                startActivity(intent)
+            }
+        )
+
+        rvSetlistsInstrumento.adapter = adapterInstrumentos
     }
 
     private fun observarViewModel() {
-        viewModel.setlists.observe(this){listaSetlists ->
-            adapter.actualizarLista(listaSetlists)
+        viewModel.setlists.observe(this) { listaSetlists ->
+            listaSetlistsCompleta = listaSetlists
+            filtrarSetlists(textoBusquedaActual)
         }
+
         viewModel.suscripcionExitosa.observe(this) { exito ->
             if (exito == true) {
-                Toast.makeText(this,
-                    getString(R.string.message_dashboard_te_uniste_al_setlist_con_xito), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    getString(R.string.message_dashboard_te_uniste_al_setlist_con_xito),
+                    Toast.LENGTH_SHORT
+                ).show()
 
                 viewModel.cargarSetlists()
             }
+        }
+
+        viewModel.error.observe(this) { mensaje ->
+            Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -289,7 +374,11 @@ class SetlistDashboardActivity : AppCompatActivity() {
 
                     true
                 }
-                // Manejar R.id.nav_mine si lo tenés
+                R.id.nav_show_setlist -> {
+                    startActivity(Intent(this, ShowSetlistActivity::class.java))
+                    finish()
+                    true
+                }
                 else -> false
             }
         }

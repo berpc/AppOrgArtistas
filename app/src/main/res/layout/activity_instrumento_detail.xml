@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0F172A"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvBackInstrumento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="← Show"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:padding="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground" />
+
+    <TextView
+        android:id="@+id/tvTituloShowInstrumento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nombre del show"
+        android:textColor="#FFFFFF"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/tvFechaShowInstrumento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fecha"
+        android:textColor="#94A3B8"
+        android:textSize="18sp"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:id="@+id/tvNombreInstrumentoDetalle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Instrumento"
+        android:textColor="#CBD5E1"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginTop="12dp" />
+
+    <LinearLayout
+        android:id="@+id/layoutCodigoInstrumento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="24dp"
+        android:background="#1E293B"
+        android:padding="18dp">
+
+        <TextView
+            android:id="@+id/tvCodigoInstrumento"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Código: ABC123"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/btnCopiarCodigoInstrumento"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Copiar" />
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/btnGuardarCambiosPartituras"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Guardar"
+        android:layout_marginTop="16dp" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="24dp"
+        android:fillViewport="true">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPartiturasInstrumento"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+    </HorizontalScrollView>
+
+</LinearLayout>
