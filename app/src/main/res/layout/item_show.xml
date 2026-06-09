@@ -15,11 +15,16 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <View
+        <ImageView
             android:id="@+id/viewIconShow"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="#3B82F6" app:layout_constraintBottom_toBottomOf="parent"
+            android:src="@drawable/ic_event"
+            android:background="@drawable/circle_light_background"
+            android:padding="10dp"
+            android:scaleType="centerInside"
+            app:tint="#0F172A"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -64,4 +69,5 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </com.google.android.material.card.MaterialCardView>

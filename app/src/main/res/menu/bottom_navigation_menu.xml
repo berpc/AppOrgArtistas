@@ -7,12 +7,12 @@
     <item
         android:id="@+id/item_2"
         android:enabled="true"
-        android:icon="@drawable/ic_downloaded"
-        android:title="Shared"/>
+        android:icon="@drawable/director"
+        android:title="Director"/>
     <item
         android:id="@+id/nav_show_setlist"
-        android:icon="@drawable/ic_folder"
-        android:title="Mine"
+        android:icon="@drawable/ic_contact"
+        android:title="Shows"
         />
 
 </menu>
