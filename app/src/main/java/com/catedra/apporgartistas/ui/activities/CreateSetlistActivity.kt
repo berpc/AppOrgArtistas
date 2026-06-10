@@ -20,7 +20,6 @@ import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.activities.CameraActivity
 import com.catedra.apporgartistas.viewmodels.CreateSetlistViewModel
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.auth.FirebaseAuth
 
 class CreateSetlistActivity : AppCompatActivity() {
 
@@ -130,7 +129,6 @@ class CreateSetlistActivity : AppCompatActivity() {
         btnGuardar.setOnClickListener {
 
             val titulo = etTitulo.text.toString()
-            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: getString(R.string.default_create_usuario_anonimo)
             val nombreGrupo = etNombreGrupo.text.toString()
             val ubicacion = etUbicacion.text.toString()
             if (titulo.isBlank()) {
@@ -159,7 +157,12 @@ class CreateSetlistActivity : AppCompatActivity() {
 
             Toast.makeText(this,
                 getString(R.string.message_create_subiendo_archivos_por_favor_espera), Toast.LENGTH_SHORT).show()
-            viewModel.guardarSetlist(titulo, nombreGrupo, ubicacion, userId)
+            viewModel.guardarSetlist(
+                titulo,
+                nombreGrupo,
+                ubicacion,
+                getString(R.string.default_create_usuario_anonimo)
+            )
         }
     }
 

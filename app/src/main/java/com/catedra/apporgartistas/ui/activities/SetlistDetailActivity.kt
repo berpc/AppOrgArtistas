@@ -113,14 +113,13 @@ class SetlistDetailActivity : AppCompatActivity() {
 
     private fun configurarListaDePartituras(setlist: Setlist) {
         titulosVisuales = setlist.partituras.map { it.nombre }.toMutableList()
-       // adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, titulosVisuales)
-        val adapter = ArrayAdapter(this, R.layout.item_partitura, titulosVisuales)
+        adapter = ArrayAdapter(this, R.layout.item_partitura, titulosVisuales)
         listView.adapter = adapter
 
         listView.setOnItemClickListener { _, _, position, _ ->
             val intent = Intent(this, PdfViewerActivity::class.java).apply {
-                putExtra("PDF_URL", setlist.partituras[position].url)
-                putExtra("OBRA_TITULO", titulosVisuales[position])
+                putExtra(PdfViewerActivity.EXTRA_PDF_URL, setlist.partituras[position].url)
+                putExtra(PdfViewerActivity.EXTRA_OBRA_TITULO, titulosVisuales[position])
             }
             startActivity(intent)
         }

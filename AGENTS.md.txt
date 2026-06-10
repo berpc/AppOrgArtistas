@@ -1,0 +1,23 @@
+# AppOrgArtistas - Instrucciones para agentes
+
+## Contexto
+Proyecto Android nativo en Kotlin.
+Usa XML layouts, Activities y ViewModels.
+No usa Jetpack Compose.
+
+## Arquitectura deseada
+Mantener MVVM simple:
+- Activities: UI, listeners, navegación, Toasts.
+- ViewModels: estado de pantalla, LiveData, validaciones simples.
+- Repositories: Firestore.
+- Services: FirebaseAuth, Cloudinary, FCM/notifications y APIs externas.
+
+## Reglas
+- No migrar a Jetpack Compose.
+- No migrar Activities a Fragments salvo que se pida explícitamente.
+- No introducir Hilt, Dagger, Room, Retrofit, UseCases, interfaces, Flow ni coroutines nuevas.
+- No cambiar rutas de Firestore.
+- No cambiar nombres de campos usados en Firestore.
+- No cambiar XML salvo que se pida.
+- Hacer refactors chicos y mecánicos.
+- Después de cada cambio, listar archivos modificados y explicar por qué.

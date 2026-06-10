@@ -3,6 +3,7 @@ package com.catedra.apporgartistas.utils
 import com.catedra.apporgartistas.data.models.SetlistMasterItem
 import com.catedra.apporgartistas.data.models.Show
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.tasks.await
 
 class ShowDetailRepository {
@@ -16,6 +17,16 @@ class ShowDetailRepository {
         .document(agrupacionId)
         .collection("shows")
         .document(showId)
+
+    suspend fun obtenerShow(
+        agrupacionId: String,
+        showId: String
+    ): Show? {
+        return getShowRef(agrupacionId, showId)
+            .get()
+            .await()
+            .toObject(Show::class.java)
+    }
 
     suspend fun actualizarSetlistMaster(
         agrupacionId: String,
@@ -45,8 +56,8 @@ class ShowDetailRepository {
         showId: String,
         onChange: (Show?) -> Unit,
         onError: (Exception) -> Unit
-    ) {
-        db.collection("agrupaciones")
+    ): ListenerRegistration {
+        return db.collection("agrupaciones")
             .document(agrupacionId)
             .collection("shows")
             .document(showId)

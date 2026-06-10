@@ -5,22 +5,19 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.catedra.apporgartistas.R
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.catedra.apporgartistas.viewmodels.RegisterState
+import com.catedra.apporgartistas.viewmodels.RegisterViewModel
 
 class RegisterActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
+    private val viewModel: RegisterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
 
         val etNombre = findViewById<EditText>(R.id.etNombre)
         val etEmail = findViewById<EditText>(R.id.etEmail)
@@ -30,7 +27,31 @@ class RegisterActivity : AppCompatActivity() {
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
 
         btnBack.setOnClickListener {
-            finish() // vuelve al login
+            finish()
+        }
+
+        viewModel.registerState.observe(this) { state ->
+            when (state) {
+                RegisterState.Idle,
+                RegisterState.Loading -> Unit
+
+                RegisterState.Success -> {
+                    Toast.makeText(
+                        this,
+                        getString(R.string.message_register_cuenta_creada_exitosamente),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    finish()
+                }
+
+                is RegisterState.Error -> {
+                    Toast.makeText(
+                        this,
+                        state.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
 
         btnRegister.setOnClickListener {
@@ -39,57 +60,34 @@ class RegisterActivity : AppCompatActivity() {
             val password = etPassword.text.toString().trim()
             val confirmPassword = etConfirmPassword.text.toString().trim()
 
-            // Validaciones
             if (nombre.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this,
-                    getString(R.string.message_register_completa_todos_los_campos), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    getString(R.string.message_register_completa_todos_los_campos),
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
             if (password != confirmPassword) {
-                Toast.makeText(this,
-                    getString(R.string.message_register_las_contrasenias_no_coinciden), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    getString(R.string.message_register_las_contrasenias_no_coinciden),
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
             if (password.length < 6) {
-                Toast.makeText(this,
-                    getString(R.string.message_register_la_contrasenia_debe_tener_al_menos_6_caracteres), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    getString(R.string.message_register_la_contrasenia_debe_tener_al_menos_6_caracteres),
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
-            // Registrar en Firebase
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-
-                    if (task.isSuccessful) {
-
-                        Toast.makeText(
-                            this,
-                            getString(R.string.message_register_cuenta_creada_exitosamente),
-                            Toast.LENGTH_SHORT
-                        ).show()
-
-                        val user = hashMapOf(
-                            "nombre" to nombre,
-                            "email" to email
-                        )
-
-                        db.collection("usuarios")
-                            .document(auth.currentUser!!.uid)
-                            .set(user)
-
-                        finish()
-
-                    } else {
-
-                        Toast.makeText(
-                            this,
-                            task.exception?.message,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
+            viewModel.register(nombre, email, password)
         }
     }
 }

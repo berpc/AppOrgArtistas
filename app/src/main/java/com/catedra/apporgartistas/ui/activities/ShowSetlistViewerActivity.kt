@@ -4,35 +4,30 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.catedra.apporgartistas.R
-import com.catedra.apporgartistas.data.models.Instrumento
 import com.catedra.apporgartistas.data.models.PartituraCloud
 import com.catedra.apporgartistas.data.models.SetlistMasterItem
-import com.catedra.apporgartistas.data.models.Show
 import com.catedra.apporgartistas.ui.adapters.ShowSetlistViewerAdapter
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
+import com.catedra.apporgartistas.viewmodels.ShowSetlistViewerViewModel
 
 class ShowSetlistViewerActivity : AppCompatActivity() {
+
+    private val viewModel: ShowSetlistViewerViewModel by viewModels()
 
     private lateinit var codigo: String
     private lateinit var agrupacionId: String
     private lateinit var showId: String
     private lateinit var instrumentoId: String
 
-    private val firestore = FirebaseFirestore.getInstance()
-
     private lateinit var tvTituloShow: TextView
     private lateinit var tvFechaShow: TextView
     private lateinit var tvInstrumento: TextView
     private lateinit var rvShowSetlistViewer: RecyclerView
     private lateinit var adapter: ShowSetlistViewerAdapter
-
-    private var showListener: ListenerRegistration? = null
-    private var instrumentoListener: ListenerRegistration? = null
 
     private var setlistMaster: List<SetlistMasterItem> = emptyList()
     private var pdfsPorSetlistItem: Map<String, PartituraCloud> = emptyMap()
@@ -64,8 +59,13 @@ class ShowSetlistViewerActivity : AppCompatActivity() {
 
         configurarViews()
         configurarRecycler()
-        observarShowEnTiempoReal()
-        observarInstrumentoEnTiempoReal()
+        observarViewModel()
+
+        viewModel.observarDatos(
+            agrupacionId = agrupacionId,
+            showId = showId,
+            instrumentoId = instrumentoId
+        )
     }
 
     private fun configurarViews() {
@@ -93,31 +93,15 @@ class ShowSetlistViewerActivity : AppCompatActivity() {
         rvShowSetlistViewer.adapter = adapter
     }
 
-    private fun observarShowEnTiempoReal() {
-        val showRef = firestore.collection("agrupaciones")
-            .document(agrupacionId)
-            .collection("shows")
-            .document(showId)
-
-        showListener = showRef.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                Toast.makeText(
-                    this,
-                    "Error al escuchar cambios del show",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@addSnapshotListener
-            }
-
-            val show = snapshot?.toObject(Show::class.java)
-
+    private fun observarViewModel() {
+        viewModel.show.observe(this) { show ->
             if (show == null) {
                 Toast.makeText(
                     this,
                     "Show no encontrado",
                     Toast.LENGTH_SHORT
                 ).show()
-                return@addSnapshotListener
+                return@observe
             }
 
             tvTituloShow.text = show.nombre.ifBlank { "Show sin nombre" }
@@ -127,42 +111,29 @@ class ShowSetlistViewerActivity : AppCompatActivity() {
 
             actualizarLista()
         }
-    }
 
-    private fun observarInstrumentoEnTiempoReal() {
-        val instrumentoRef = firestore.collection("agrupaciones")
-            .document(agrupacionId)
-            .collection("shows")
-            .document(showId)
-            .collection("instrumentos")
-            .document(instrumentoId)
-
-        instrumentoListener = instrumentoRef.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                Toast.makeText(
-                    this,
-                    "Error al escuchar cambios del instrumento",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@addSnapshotListener
-            }
-
-            val instrumento = snapshot?.toObject(Instrumento::class.java)
-
+        viewModel.instrumento.observe(this) { instrumento ->
             if (instrumento == null) {
                 Toast.makeText(
                     this,
                     "Instrumento no encontrado",
                     Toast.LENGTH_SHORT
                 ).show()
-                return@addSnapshotListener
+                return@observe
             }
 
             tvInstrumento.text = instrumento.nombre.ifBlank { "Instrumento" }
-
             pdfsPorSetlistItem = instrumento.pdfsPorSetlistItem
 
             actualizarLista()
+        }
+
+        viewModel.error.observe(this) { mensaje ->
+            Toast.makeText(
+                this,
+                mensaje,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -187,17 +158,10 @@ class ShowSetlistViewerActivity : AppCompatActivity() {
         }
 
         val intent = Intent(this, PdfViewerActivity::class.java).apply {
-            putExtra("PDF_URL", partitura.url)
-            putExtra("OBRA_TITULO", setlistItem.nombre.ifBlank { "Partitura" })
+            putExtra(PdfViewerActivity.EXTRA_PDF_URL, partitura.url)
+            putExtra(PdfViewerActivity.EXTRA_OBRA_TITULO, setlistItem.nombre.ifBlank { "Partitura" })
         }
 
         startActivity(intent)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        showListener?.remove()
-        instrumentoListener?.remove()
     }
 }

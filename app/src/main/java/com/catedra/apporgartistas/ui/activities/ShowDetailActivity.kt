@@ -8,9 +8,9 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -21,13 +21,11 @@ import com.catedra.apporgartistas.data.models.SetlistMasterItem
 import com.catedra.apporgartistas.data.models.Show
 import com.catedra.apporgartistas.ui.adapters.InstrumentoAdapter
 import com.catedra.apporgartistas.ui.adapters.SetlistMatrixAdapter
-import com.catedra.apporgartistas.utils.InstrumentoRepository
-import com.catedra.apporgartistas.utils.ShowDetailRepository
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
-import java.util.UUID
+import com.catedra.apporgartistas.viewmodels.ShowDetailViewModel
 
 class ShowDetailActivity : AppCompatActivity() {
+
+    private val viewModel: ShowDetailViewModel by viewModels()
 
     private lateinit var showId: String
     private lateinit var agrupacionId: String
@@ -39,10 +37,6 @@ class ShowDetailActivity : AppCompatActivity() {
     private lateinit var layoutHeaderMatriz: LinearLayout
     private lateinit var rvMatrizSetlist: RecyclerView
     private lateinit var matrizAdapter: SetlistMatrixAdapter
-
-    private val db = FirebaseFirestore.getInstance()
-    private val instrumentoRepository = InstrumentoRepository()
-    private val showDetailRepository = ShowDetailRepository()
 
     private var showActual: Show? = null
     private var cancionesSetlist: List<SetlistMasterItem> = emptyList()
@@ -66,9 +60,9 @@ class ShowDetailActivity : AppCompatActivity() {
         configurarCabecera()
         configurarCarruselInstrumentos()
         configurarMatrizSetlist()
+        observarViewModel()
 
-        cargarShow()
-        cargarInstrumentos()
+        viewModel.cargarDatos(agrupacionId, showId)
     }
 
     private fun configurarCabecera() {
@@ -131,18 +125,18 @@ class ShowDetailActivity : AppCompatActivity() {
             instrumentos = emptyList(),
 
             onCrearCancionConfirmada = { nombre ->
-                crearCancionEnSetlist(nombre)
+                viewModel.crearCancionEnSetlist(nombre)
             },
 
             onEditarCancionConfirmada = { setlistItem, nuevoNombre ->
-                editarCancionEnSetlist(
+                viewModel.editarCancionEnSetlist(
                     setlistItem = setlistItem,
                     nuevoNombre = nuevoNombre
                 )
             },
 
             onBorrarCancionConfirmada = { setlistItem ->
-                borrarCancionDeSetlist(setlistItem)
+                viewModel.borrarCancionDeSetlist(setlistItem)
             },
 
             onCeldaClick = { instrumento, _ ->
@@ -159,6 +153,33 @@ class ShowDetailActivity : AppCompatActivity() {
         configurarDragAndDropSetlist()
     }
 
+    private fun observarViewModel() {
+        viewModel.showActual.observe(this) { show ->
+            showActual = show
+        }
+
+        viewModel.canciones.observe(this) { canciones ->
+            cancionesSetlist = canciones
+            actualizarMatriz()
+        }
+
+        viewModel.instrumentos.observe(this) { instrumentos ->
+            instrumentosActuales = instrumentos
+            instrumentoAdapter.actualizarLista(instrumentos)
+            dibujarIndicadores()
+            actualizarIndicadorActivo()
+            actualizarMatriz()
+        }
+
+        viewModel.mensaje.observe(this) { mensaje ->
+            Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
+        }
+
+        viewModel.error.observe(this) { error ->
+            Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun abrirDetalleInstrumento(instrumento: Instrumento) {
         val intent = Intent(this, InstrumentoDetailActivity::class.java)
 
@@ -167,53 +188,6 @@ class ShowDetailActivity : AppCompatActivity() {
         intent.putExtra("INSTRUMENTO_ID", instrumento.id)
 
         startActivity(intent)
-    }
-
-    private fun cargarShow() {
-        db.collection("agrupaciones")
-            .document(agrupacionId)
-            .collection("shows")
-            .document(showId)
-            .get()
-            .addOnSuccessListener { document ->
-                showActual = document.toObject(Show::class.java)
-                cancionesSetlist = showActual?.setlistMaster ?: emptyList()
-
-                actualizarMatriz()
-            }
-            .addOnFailureListener {
-                Toast.makeText(
-                    this,
-                    "Error al cargar show",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-    }
-
-    private fun cargarInstrumentos() {
-        lifecycleScope.launch {
-            try {
-                val instrumentos = instrumentoRepository.obtenerInstrumentos(
-                    showId = showId,
-                    agrupacionId = agrupacionId
-                )
-
-                instrumentosActuales = instrumentos
-
-                instrumentoAdapter.actualizarLista(instrumentos)
-                dibujarIndicadores()
-                actualizarIndicadorActivo()
-
-                actualizarMatriz()
-
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@ShowDetailActivity,
-                    "Error al cargar instrumentos: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
     }
 
     private fun actualizarMatriz() {
@@ -267,67 +241,6 @@ class ShowDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun crearCancionEnSetlist(nombre: String) {
-        val nuevoItem = SetlistMasterItem(
-            id = UUID.randomUUID().toString(),
-            nombre = nombre
-        )
-
-        val nuevaLista = cancionesSetlist.toMutableList()
-        nuevaLista.add(nuevoItem)
-
-        guardarSetlistMaster(nuevaLista)
-    }
-
-    private fun editarCancionEnSetlist(
-        setlistItem: SetlistMasterItem,
-        nuevoNombre: String
-    ) {
-        val nuevaLista = cancionesSetlist.map { item ->
-            if (item.id == setlistItem.id) {
-                item.copy(nombre = nuevoNombre)
-            } else {
-                item
-            }
-        }
-
-        guardarSetlistMaster(nuevaLista)
-    }
-
-    private fun borrarCancionDeSetlist(
-        setlistItem: SetlistMasterItem
-    ) {
-        val nuevaLista = cancionesSetlist.filter { item ->
-            item.id != setlistItem.id
-        }
-
-        guardarSetlistMaster(nuevaLista)
-    }
-
-    private fun guardarSetlistMaster(
-        nuevaLista: List<SetlistMasterItem>
-    ) {
-        lifecycleScope.launch {
-            try {
-                showDetailRepository.actualizarSetlistMaster(
-                    agrupacionId = agrupacionId,
-                    showId = showId,
-                    nuevoSetlistMaster = nuevaLista
-                )
-
-                cancionesSetlist = nuevaLista
-                actualizarMatriz()
-
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@ShowDetailActivity,
-                    "Error al guardar setlist: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-    }
-
     private fun configurarDragAndDropSetlist() {
         val callback = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP or ItemTouchHelper.DOWN,
@@ -375,7 +288,7 @@ class ShowDetailActivity : AppCompatActivity() {
                 val nuevoOrden = matrizAdapter.obtenerCancionesActuales()
 
                 if (nuevoOrden != cancionesSetlist) {
-                    guardarNuevoOrdenSetlist(nuevoOrden)
+                    viewModel.guardarNuevoOrdenSetlist(nuevoOrden)
                 }
             }
 
@@ -386,38 +299,6 @@ class ShowDetailActivity : AppCompatActivity() {
 
         itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper?.attachToRecyclerView(rvMatrizSetlist)
-    }
-
-    private fun guardarNuevoOrdenSetlist(
-        nuevoOrden: List<SetlistMasterItem>
-    ) {
-        lifecycleScope.launch {
-            try {
-                showDetailRepository.actualizarSetlistMaster(
-                    agrupacionId = agrupacionId,
-                    showId = showId,
-                    nuevoSetlistMaster = nuevoOrden
-                )
-
-                cancionesSetlist = nuevoOrden
-                actualizarMatriz()
-
-                Toast.makeText(
-                    this@ShowDetailActivity,
-                    "Orden actualizado",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@ShowDetailActivity,
-                    "Error al actualizar orden: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
-
-                actualizarMatriz()
-            }
-        }
     }
 
     private fun mostrarDialogoAgregarInstrumento() {
@@ -439,42 +320,10 @@ class ShowDetailActivity : AppCompatActivity() {
                     return@setPositiveButton
                 }
 
-                agregarInstrumento(nombre)
+                viewModel.agregarInstrumento(nombre)
             }
             .setNegativeButton("Cancelar", null)
             .show()
-    }
-
-    private fun agregarInstrumento(nombre: String) {
-        lifecycleScope.launch {
-            try {
-                val instrumento = Instrumento(
-                    nombre = nombre,
-                    activo = true
-                )
-
-                instrumentoRepository.agregarInstrumento(
-                    showId = showId,
-                    agrupacionId = agrupacionId,
-                    instrumento = instrumento
-                )
-
-                Toast.makeText(
-                    this@ShowDetailActivity,
-                    "Instrumento agregado",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                cargarInstrumentos()
-
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@ShowDetailActivity,
-                    "Error al agregar instrumento: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
     }
 
     private fun dibujarIndicadores() {

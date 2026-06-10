@@ -1,18 +1,14 @@
 package com.catedra.apporgartistas.viewmodels
 
-
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.catedra.apporgartistas.data.models.Agrupacion
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.catedra.apporgartistas.utils.AgrupacionRepository
 
 class DirectorDashboardViewModel : ViewModel() {
 
-    private val db = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
-    private val agrupacionesRef = db.collection("agrupaciones")
+    private val agrupacionRepository = AgrupacionRepository()
 
     private val _agrupaciones = MutableLiveData<List<Agrupacion>>()
     val agrupaciones: LiveData<List<Agrupacion>> get() = _agrupaciones
@@ -21,41 +17,29 @@ class DirectorDashboardViewModel : ViewModel() {
     val mensaje: LiveData<String> get() = _mensaje
 
     fun cargarAgrupaciones() {
-        val currentUserId = auth.currentUser?.uid ?: return
-
-        agrupacionesRef
-            .whereEqualTo("directorId", currentUserId)
-            .whereEqualTo("active", true) // Filtramos las agrupaciones borradas
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    _mensaje.value = "Error al cargar: ${error.message}"
-                    return@addSnapshotListener
-                }
-
-                val lista = snapshot?.documents?.mapNotNull { it.toObject(Agrupacion::class.java) } ?: emptyList()
+        agrupacionRepository.listenToAgrupacionesActivasDelDirector(
+            onSuccess = { lista ->
                 _agrupaciones.value = lista
+            },
+            onFailure = { error ->
+                _mensaje.value = "Error al cargar: ${error.message}"
             }
+        )
     }
 
     fun crearAgrupacion(nombre: String) {
-        val currentUserId = auth.currentUser?.uid ?: return
-        val docRef = agrupacionesRef.document()
-        val nuevaAgrupacion = Agrupacion(id = docRef.id, nombre = nombre, directorId = currentUserId)
-
-        docRef.set(nuevaAgrupacion)
-            .addOnSuccessListener { _mensaje.value = "Agrupación creada" }
-            .addOnFailureListener { _mensaje.value = "Error al crear" }
+        agrupacionRepository.createAgrupacionDelDirector(
+            nombre = nombre,
+            onSuccess = { _mensaje.value = "Agrupacion creada" },
+            onFailure = { _mensaje.value = "Error al crear" }
+        )
     }
 
     fun borrarAgrupacion(id: String) {
-        // Reemplazamos el delete() por un update()
-        agrupacionesRef.document(id)
-            .update("active", false)
-            .addOnSuccessListener {
-                _mensaje.value = "Agrupación enviada a la papelera"
-            }
-            .addOnFailureListener {
-                _mensaje.value = "Error al eliminar"
-            }
+        agrupacionRepository.softDeleteAgrupacion(
+            id = id,
+            onSuccess = { _mensaje.value = "Agrupacion enviada a la papelera" },
+            onFailure = { _mensaje.value = "Error al eliminar" }
+        )
     }
 }

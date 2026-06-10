@@ -1,25 +1,26 @@
 package com.catedra.apporgartistas.utils
 
 import com.catedra.apporgartistas.data.models.Agrupacion
-import com.google.firebase.auth.FirebaseAuth
+import com.catedra.apporgartistas.services.AuthService
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
-class AgrupacionRepository {
+class AgrupacionRepository(
+    private val authService: AuthService = AuthService()
+) {
 
     private val db = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
     private val agrupacionesRef = db.collection("agrupaciones")
 
-    // Obtener el ID del director actual
     private val currentUserId: String?
-        get() = auth.currentUser?.uid
+        get() = authService.getCurrentUserId()
 
-    // Escuchar las agrupaciones del director en tiempo real
-    fun listenToAgrupaciones(onSuccess: (List<Agrupacion>) -> Unit, onFailure: (Exception) -> Unit): ListenerRegistration? {
+    fun listenToAgrupaciones(
+        onSuccess: (List<Agrupacion>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ): ListenerRegistration? {
         val userId = currentUserId ?: return null
 
-        // Filtramos para que el director solo vea las agrupaciones que él creó
         return agrupacionesRef
             .whereEqualTo("directorId", userId)
             .addSnapshotListener { snapshot, error ->
@@ -36,10 +37,32 @@ class AgrupacionRepository {
             }
     }
 
-    // Crear una nueva agrupación
+    fun listenToAgrupacionesActivasDelDirector(
+        onSuccess: (List<Agrupacion>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val userId = currentUserId ?: return
+
+        agrupacionesRef
+            .whereEqualTo("directorId", userId)
+            .whereEqualTo("active", true)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    onFailure(error)
+                    return@addSnapshotListener
+                }
+
+                val lista = snapshot?.documents?.mapNotNull { document ->
+                    document.toObject(Agrupacion::class.java)
+                } ?: emptyList()
+
+                onSuccess(lista)
+            }
+    }
+
     fun createAgrupacion(nombre: String, onComplete: (Boolean) -> Unit) {
         val userId = currentUserId ?: return onComplete(false)
-        val docRef = agrupacionesRef.document() // Genera un ID automático
+        val docRef = agrupacionesRef.document()
         val nuevaAgrupacion = Agrupacion(id = docRef.id, nombre = nombre, directorId = userId)
 
         docRef.set(nuevaAgrupacion)
@@ -47,7 +70,20 @@ class AgrupacionRepository {
             .addOnFailureListener { onComplete(false) }
     }
 
-    // Editar el nombre de una agrupación
+    fun createAgrupacionDelDirector(
+        nombre: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val userId = currentUserId ?: return
+        val docRef = agrupacionesRef.document()
+        val nuevaAgrupacion = Agrupacion(id = docRef.id, nombre = nombre, directorId = userId)
+
+        docRef.set(nuevaAgrupacion)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onFailure() }
+    }
+
     fun updateAgrupacionNombre(id: String, nuevoNombre: String, onComplete: (Boolean) -> Unit) {
         agrupacionesRef.document(id)
             .update("nombre", nuevoNombre)
@@ -55,11 +91,21 @@ class AgrupacionRepository {
             .addOnFailureListener { onComplete(false) }
     }
 
-    // Borrar una agrupación
     fun deleteAgrupacion(id: String, onComplete: (Boolean) -> Unit) {
         agrupacionesRef.document(id)
             .delete()
             .addOnSuccessListener { onComplete(true) }
             .addOnFailureListener { onComplete(false) }
+    }
+
+    fun softDeleteAgrupacion(
+        id: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        agrupacionesRef.document(id)
+            .update("active", false)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onFailure() }
     }
 }

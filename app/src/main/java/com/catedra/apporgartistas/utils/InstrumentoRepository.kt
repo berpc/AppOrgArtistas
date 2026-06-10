@@ -5,6 +5,7 @@ import com.catedra.apporgartistas.data.models.Instrumento
 import com.catedra.apporgartistas.data.models.Partitura
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.tasks.await
 import com.catedra.apporgartistas.data.models.PartituraCloud
 import com.catedra.apporgartistas.data.models.Setlist
@@ -31,6 +32,22 @@ class InstrumentoRepository {
         return snapshot.documents.mapNotNull { document ->
             document.toObject(Instrumento::class.java)
         }
+    }
+
+    suspend fun obtenerInstrumento(
+        agrupacionId: String,
+        showId: String,
+        instrumentoId: String
+    ): Instrumento? {
+        return db.collection("agrupaciones")
+            .document(agrupacionId)
+            .collection("shows")
+            .document(showId)
+            .collection("instrumentos")
+            .document(instrumentoId)
+            .get()
+            .await()
+            .toObject(Instrumento::class.java)
     }
 
     suspend fun agregarInstrumento(
@@ -71,8 +88,8 @@ class InstrumentoRepository {
         instrumentoId: String,
         onChange: (Instrumento?) -> Unit,
         onError: (Exception) -> Unit
-    ) {
-        db.collection("agrupaciones")
+    ): ListenerRegistration {
+        return db.collection("agrupaciones")
             .document(agrupacionId)
             .collection("shows")
             .document(showId)

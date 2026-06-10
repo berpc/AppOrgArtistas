@@ -7,13 +7,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.catedra.apporgartistas.data.models.PartituraCloud
 import com.catedra.apporgartistas.data.models.Setlist
-import com.catedra.apporgartistas.utils.CloudinaryManager
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-
+import com.catedra.apporgartistas.data.repositories.SetlistRepository
+import com.catedra.apporgartistas.services.AuthService
+import com.catedra.apporgartistas.services.CloudinaryService
 class SetlistDetailViewModel : ViewModel(){
-    private val firestore = FirebaseFirestore.getInstance()
-    private val cloudinaryManager = CloudinaryManager(uploadPreset = "upload_from_local")
+    private val setlistRepository = SetlistRepository()
+    private val cloudinaryService = CloudinaryService()
+    private val authService = AuthService()
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -29,33 +29,25 @@ class SetlistDetailViewModel : ViewModel(){
 
     // Función interna para obtener el ID limpio
     private fun getCurrentUserId(): String {
-        return FirebaseAuth.getInstance().currentUser?.uid ?: "usuario_anonimo"
+        return authService.getCurrentUserIdOrAnonymous()
     }
 
     fun obtenerTodasLasPartiturasDeLaNube() {
-        val userId = getCurrentUserId()
+        val userId = authService.getCurrentUserIdOrAnonymous()
+
         _isLoading.value = true
-        firestore.collection("usuarios").document(userId).collection("setlists")
-            .get()
-            .addOnSuccessListener { result ->
-                val todasLasPartituras = mutableListOf<PartituraCloud>()
 
-                for (document in result) {
-                    val setlist = document.toObject(Setlist::class.java)
-                    todasLasPartituras.addAll(setlist.partituras)
-                }
-
-                // Filtramos por URL para que la lista no tenga duplicados
-                val partiturasUnicas = todasLasPartituras.distinctBy { it.url }
-
+        setlistRepository.obtenerTodasLasPartiturasDeLaNube(
+            userId = userId,
+            onSuccess = {partiturasUnicas ->
                 _partiturasEnNube.postValue(partiturasUnicas)
                 _isLoading.postValue(false)
-            }
-            .addOnFailureListener { e ->
-                Log.e("SetlistDetail", "Error al obtener partituras", e)
-                _error.postValue("Error al cargar partituras de la nube")
+            },
+            onError = {mensaje ->
+                _error.postValue(mensaje)
                 _isLoading.postValue(false)
             }
+        )
     }
 
     fun agregarPartituraExistente(setlist: Setlist, partitura: PartituraCloud) {
@@ -70,16 +62,11 @@ class SetlistDetailViewModel : ViewModel(){
         val userId = getCurrentUserId()
         _isLoading.value = true
 
-        cloudinaryManager.subirPartitura(
-            fileUri = uri,
+        cloudinaryService.subirPartitura(
+            uri = uri,
+            nombre = nombre,
             userId = userId,
-            onSuccess = { urlSegura, publicId ->
-                val nuevaPartitura = PartituraCloud(
-                    nombre = nombre,
-                    url = urlSegura,
-                    publicId = publicId
-                )
-
+            onSuccess = { nuevaPartitura ->
                 val nuevasPartituras = setlist.partituras.toMutableList()
                 nuevasPartituras.add(nuevaPartitura)
 
@@ -87,7 +74,7 @@ class SetlistDetailViewModel : ViewModel(){
             },
             onError = { errorMsg ->
                 Log.e("SetlistDetail", "Error Cloudinary: $errorMsg")
-                _error.postValue("Error al subir imagen a Cloudinary")
+                _error.postValue("Error al subir partitura a Cloudinary")
                 _isLoading.postValue(false)
             }
         )
@@ -103,25 +90,21 @@ class SetlistDetailViewModel : ViewModel(){
         setlist: Setlist,
         nuevasPartituras: List<PartituraCloud>
     ) {
-        if (setlist.id.isBlank()) {
-            _error.postValue("Error: El Setlist no tiene un ID válido.")
-            _isLoading.postValue(false)
-            return
-        }
+        _isLoading.postValue(true)
 
-        firestore.collection("usuarios").document(userId)
-            .collection("setlists").document(setlist.id)
-            .update("partituras", nuevasPartituras)
-            .addOnSuccessListener {
-                // Si sale bien, actualizamos nuestro objeto local y avisamos a la vista
+        setlistRepository.actualizarPartituras(
+            userId = userId,
+            setlistId = setlist.id,
+            nuevasPartituras = nuevasPartituras,
+            onSuccess = {
                 setlist.partituras = nuevasPartituras
                 _setlistActualizado.postValue(setlist)
                 _isLoading.postValue(false)
-            }
-            .addOnFailureListener { e ->
-                Log.e("SetlistDetail", "Error al actualizar Firestore", e)
-                _error.postValue("Error al guardar en la base de datos")
+            },
+            onError = { mensaje ->
+                _error.postValue(mensaje)
                 _isLoading.postValue(false)
             }
+        )
     }
 }

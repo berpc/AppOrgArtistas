@@ -14,6 +14,10 @@ import java.net.URLEncoder
 
 class PdfViewerActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_PDF_URL = "PDF_URL"
+        const val EXTRA_OBRA_TITULO = "OBRA_TITULO"
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,8 +27,8 @@ class PdfViewerActivity : AppCompatActivity() {
         val webView = findViewById<WebView>(R.id.webViewPdf)
         val tvCargando = findViewById<TextView>(R.id.tvCargandoPdf)
 
-        val pdfUrl = intent.getStringExtra(getString(R.string.default_pdfviewer_pdf_url)) ?: ""
-        val obraTitulo = intent.getStringExtra(getString(R.string.default_pdfviewer_obra_titulo)) ?: getString(
+        val pdfUrl = intent.getStringExtra(EXTRA_PDF_URL) ?: ""
+        val obraTitulo = intent.getStringExtra(EXTRA_OBRA_TITULO) ?: getString(
             R.string.default_pdf_partitura
         )
 

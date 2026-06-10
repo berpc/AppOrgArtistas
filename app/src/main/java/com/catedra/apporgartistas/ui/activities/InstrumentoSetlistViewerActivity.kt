@@ -6,22 +6,21 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.catedra.apporgartistas.R
-import com.catedra.apporgartistas.data.models.Instrumento
 import com.catedra.apporgartistas.data.models.PartituraCloud
 import com.catedra.apporgartistas.data.models.SetlistMasterItem
-import com.catedra.apporgartistas.data.models.Show
-import com.google.firebase.firestore.FirebaseFirestore
+import com.catedra.apporgartistas.viewmodels.InstrumentoSetlistViewerViewModel
 
 class InstrumentoSetlistViewerActivity : AppCompatActivity() {
+
+    private val viewModel: InstrumentoSetlistViewerViewModel by viewModels()
 
     private lateinit var codigo: String
     private lateinit var agrupacionId: String
     private lateinit var showId: String
     private lateinit var instrumentoId: String
-
-    private val firestore = FirebaseFirestore.getInstance()
 
     private lateinit var tvTituloShow: TextView
     private lateinit var tvFechaShow: TextView
@@ -59,69 +58,48 @@ class InstrumentoSetlistViewerActivity : AppCompatActivity() {
         tvInstrumento = findViewById(R.id.tvInstrumentoViewer)
         lvPartituras = findViewById(R.id.lvPartiturasInstrumentoViewer)
 
-        cargarDatos()
+        observarViewModel()
+
+        viewModel.cargarDatos(
+            agrupacionId = agrupacionId,
+            showId = showId,
+            instrumentoId = instrumentoId
+        )
     }
 
-    private fun cargarDatos() {
-        firestore.collection("agrupaciones")
-            .document(agrupacionId)
-            .collection("shows")
-            .document(showId)
-            .get()
-            .addOnSuccessListener { showDoc ->
-                val show = showDoc.toObject(Show::class.java)
-
-                if (show == null) {
-                    Toast.makeText(this, "No se encontró el show", Toast.LENGTH_SHORT).show()
-                    finish()
-                    return@addOnSuccessListener
-                }
-
-                setlistMaster = show.setlistMaster
-
-                tvTituloShow.text = show.nombre.ifBlank { "Show sin nombre" }
-                tvFechaShow.text = show.fecha ?: "Sin fecha"
-
-                cargarInstrumento()
+    private fun observarViewModel() {
+        viewModel.show.observe(this) { show ->
+            if (show == null) {
+                Toast.makeText(this, "No se encontr\u00f3 el show", Toast.LENGTH_SHORT).show()
+                finish()
+                return@observe
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(
-                    this,
-                    "Error al cargar show: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+
+            setlistMaster = show.setlistMaster
+            tvTituloShow.text = show.nombre.ifBlank { "Show sin nombre" }
+            tvFechaShow.text = show.fecha ?: "Sin fecha"
+        }
+
+        viewModel.instrumento.observe(this) { instrumento ->
+            if (instrumento == null) {
+                Toast.makeText(this, "No se encontr\u00f3 el instrumento", Toast.LENGTH_SHORT).show()
+                finish()
+                return@observe
             }
-    }
 
-    private fun cargarInstrumento() {
-        firestore.collection("agrupaciones")
-            .document(agrupacionId)
-            .collection("shows")
-            .document(showId)
-            .collection("instrumentos")
-            .document(instrumentoId)
-            .get()
-            .addOnSuccessListener { instrumentoDoc ->
-                val instrumento = instrumentoDoc.toObject(Instrumento::class.java)
+            tvInstrumento.text = instrumento.nombre.ifBlank { "Instrumento" }
+            pdfsPorSetlistItem = instrumento.pdfsPorSetlistItem
 
-                if (instrumento == null) {
-                    Toast.makeText(this, "No se encontró el instrumento", Toast.LENGTH_SHORT).show()
-                    finish()
-                    return@addOnSuccessListener
-                }
+            configurarLista()
+        }
 
-                tvInstrumento.text = instrumento.nombre.ifBlank { "Instrumento" }
-                pdfsPorSetlistItem = instrumento.pdfsPorSetlistItem
-
-                configurarLista()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(
-                    this,
-                    "Error al cargar instrumento: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+        viewModel.error.observe(this) { mensaje ->
+            Toast.makeText(
+                this,
+                mensaje,
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     private fun configurarLista() {
@@ -161,8 +139,8 @@ class InstrumentoSetlistViewerActivity : AppCompatActivity() {
             }
 
             val intent = Intent(this, PdfViewerActivity::class.java).apply {
-                putExtra("PDF_URL", partitura.url)
-                putExtra("OBRA_TITULO", partitura.nombre.ifBlank { "Partitura" })
+                putExtra(PdfViewerActivity.EXTRA_PDF_URL, partitura.url)
+                putExtra(PdfViewerActivity.EXTRA_OBRA_TITULO, partitura.nombre.ifBlank { "Partitura" })
             }
 
             startActivity(intent)

@@ -20,11 +20,11 @@ import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.PartituraCloud
 import com.catedra.apporgartistas.data.models.SetlistMasterItem
 import com.catedra.apporgartistas.data.models.Show
+import com.catedra.apporgartistas.services.AuthService
 import com.catedra.apporgartistas.ui.adapters.InstrumentoPartituraAdapter
 import com.catedra.apporgartistas.utils.CloudinaryManager
 import com.catedra.apporgartistas.utils.InstrumentoRepository
 import com.catedra.apporgartistas.utils.ShowDetailRepository
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class InstrumentoDetailActivity : AppCompatActivity() {
@@ -36,6 +36,7 @@ class InstrumentoDetailActivity : AppCompatActivity() {
 
     private val showRepository = ShowDetailRepository()
     private val instrumentoRepository = InstrumentoRepository()
+    private val authService = AuthService()
 
     private var showActual: Show? = null
     private var setlistMaster: List<SetlistMasterItem> = emptyList()
@@ -269,7 +270,7 @@ class InstrumentoDetailActivity : AppCompatActivity() {
     }
 
     private fun subirPdfLocal(setlistItem: SetlistMasterItem, uri: Uri) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        val userId = authService.getCurrentUserId()
 
         if (userId == null) {
             Toast.makeText(this, "Usuario no autenticado", Toast.LENGTH_SHORT).show()
@@ -311,7 +312,7 @@ class InstrumentoDetailActivity : AppCompatActivity() {
     private fun elegirPartituraYaSubida(setlistItem: SetlistMasterItem) {
         lifecycleScope.launch {
             try {
-                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                val userId = authService.getCurrentUserId()
 
                 if (userId == null) {
                     Toast.makeText(
@@ -460,7 +461,7 @@ class InstrumentoDetailActivity : AppCompatActivity() {
     private fun cargarOCrearCodigoCompartir() {
         lifecycleScope.launch {
             try {
-                val directorId = FirebaseAuth.getInstance().currentUser?.uid
+                val directorId = authService.getCurrentUserId()
 
                 if (directorId == null) {
                     Toast.makeText(

@@ -25,7 +25,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.core.app.ActivityOptionsCompat
 import com.catedra.apporgartistas.ui.adapters.SetlistInstrumentoSuscriptoAdapter
@@ -56,12 +55,7 @@ class SetlistDashboardActivity : AppCompatActivity() {
     }
 
     private fun obtenerYGuardarToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val token = task.result
-                loginViewModel.guardarTokenFcm(token)
-            }
-        }
+        loginViewModel.obtenerYGuardarTokenFcm()
     }
 
     private fun verificarPermisoNotificaciones() {
@@ -319,13 +313,6 @@ class SetlistDashboardActivity : AppCompatActivity() {
         }
     }
 
-    private fun configurarBotonNuevo() {
-        val btnNuevoSetlist = findViewById<Button>(R.id.fab_inner_nuevo)
-        btnNuevoSetlist.setOnClickListener {
-            val intent = Intent(this, CreateSetlistActivity::class.java)
-            startActivity(intent)
-        }
-    }
     private fun configurarBotonLogout() {
         val btnLogout = findViewById<Button>(R.id.btnLogout)
         btnLogout.setOnClickListener {
