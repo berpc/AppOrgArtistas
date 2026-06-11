@@ -7,8 +7,10 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -63,6 +65,7 @@ class CreateSetlistActivity : AppCompatActivity() {
         val etUbicacion = findViewById<EditText>(R.id.etUbicacion)
         val tvCoordenadas = findViewById<TextView>(R.id.tvCoordenadas)
         val btnUbicacion = findViewById<Button>(R.id.btnUbicacion)
+        val progressBar = findViewById<ProgressBar>(R.id.progressBarCreateSetlist)
 
         val fusedLocationClient =
             LocationServices.getFusedLocationProviderClient(this)
@@ -90,6 +93,13 @@ class CreateSetlistActivity : AppCompatActivity() {
                 Toast.makeText(this,
                     getString(R.string.message_create_hubo_un_error_al_guardar), Toast.LENGTH_LONG).show()
             }
+        }
+
+        viewModel.isLoading.observe(this) { loading ->
+            mostrarLoading(loading, progressBar)
+            btnGuardar.isEnabled = !loading
+            btnSubirLocal.isEnabled = !loading
+            btnCamara.isEnabled = !loading
         }
 
         btnUbicacion.setOnClickListener {
@@ -208,5 +218,9 @@ class CreateSetlistActivity : AppCompatActivity() {
             }
             .setNegativeButton(getString(R.string.btn_create_cancelar), null)
             .show()
+    }
+
+    private fun mostrarLoading(isLoading: Boolean, progressBar: ProgressBar) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }

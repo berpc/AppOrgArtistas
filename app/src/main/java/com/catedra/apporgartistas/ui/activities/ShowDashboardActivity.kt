@@ -4,8 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -25,6 +27,7 @@ class ShowsDashboardActivity : AppCompatActivity() {
 
     private val viewModel: ShowsDashboardViewModel by viewModels()
     private lateinit var adapter: ShowAdapter
+    private lateinit var progressBar: ProgressBar
 
     private var actionMode: androidx.appcompat.view.ActionMode? = null
     private var showSeleccionado: Show? = null
@@ -71,6 +74,7 @@ class ShowsDashboardActivity : AppCompatActivity() {
         agrupacionId = intent.getStringExtra("AGRUPACION_ID") ?: return finish()
         agrupacionNombre = intent.getStringExtra("AGRUPACION_NOMBRE") ?: "Agrupación"
 
+        progressBar = findViewById(R.id.progressBarShowsDashboard)
         configurarCabecera()
         configurarFab()
         configurarRecyclerView()
@@ -161,7 +165,16 @@ class ShowsDashboardActivity : AppCompatActivity() {
         viewModel.mensaje.observe(this) { msg ->
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
+
+        viewModel.isLoading.observe(this) { loading ->
+            mostrarLoading(loading)
+        }
     }
+
+    private fun mostrarLoading(isLoading: Boolean) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
     private fun configurarRecyclerView() {
         val rvShows = findViewById<RecyclerView>(R.id.rvShows)
         rvShows.layoutManager = LinearLayoutManager(this)

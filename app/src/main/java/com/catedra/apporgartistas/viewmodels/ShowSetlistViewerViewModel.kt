@@ -16,6 +16,9 @@ class ShowSetlistViewerViewModel : ViewModel() {
 
     private var showListener: ListenerRegistration? = null
     private var instrumentoListener: ListenerRegistration? = null
+    private var cargasInicialesPendientes = 0
+    private var showInicialRecibido = false
+    private var instrumentoInicialRecibido = false
 
     private val _show = MutableLiveData<Show?>()
     val show: LiveData<Show?> = _show
@@ -35,6 +38,9 @@ class ShowSetlistViewerViewModel : ViewModel() {
         instrumentoId: String
     ) {
         limpiarListeners()
+        cargasInicialesPendientes = 2
+        showInicialRecibido = false
+        instrumentoInicialRecibido = false
         _isLoading.value = true
 
         showListener = showDetailRepository.observarShow(
@@ -42,11 +48,17 @@ class ShowSetlistViewerViewModel : ViewModel() {
             showId = showId,
             onChange = { show ->
                 _show.value = show
-                _isLoading.value = false
+                if (!showInicialRecibido) {
+                    showInicialRecibido = true
+                    finalizarCargaInicial()
+                }
             },
             onError = {
                 _error.value = "Error al escuchar cambios del show"
-                _isLoading.value = false
+                if (!showInicialRecibido) {
+                    showInicialRecibido = true
+                    finalizarCargaInicial()
+                }
             }
         )
 
@@ -56,13 +68,26 @@ class ShowSetlistViewerViewModel : ViewModel() {
             instrumentoId = instrumentoId,
             onChange = { instrumento ->
                 _instrumento.value = instrumento
-                _isLoading.value = false
+                if (!instrumentoInicialRecibido) {
+                    instrumentoInicialRecibido = true
+                    finalizarCargaInicial()
+                }
             },
             onError = {
                 _error.value = "Error al escuchar cambios del instrumento"
-                _isLoading.value = false
+                if (!instrumentoInicialRecibido) {
+                    instrumentoInicialRecibido = true
+                    finalizarCargaInicial()
+                }
             }
         )
+    }
+
+    private fun finalizarCargaInicial() {
+        cargasInicialesPendientes = (cargasInicialesPendientes - 1).coerceAtLeast(0)
+        if (cargasInicialesPendientes == 0) {
+            _isLoading.value = false
+        }
     }
 
     private fun limpiarListeners() {

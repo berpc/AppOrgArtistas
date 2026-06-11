@@ -4,8 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.Gravity
+import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -37,6 +39,7 @@ class ShowDetailActivity : AppCompatActivity() {
     private lateinit var layoutHeaderMatriz: LinearLayout
     private lateinit var rvMatrizSetlist: RecyclerView
     private lateinit var matrizAdapter: SetlistMatrixAdapter
+    private lateinit var progressBar: ProgressBar
 
     private var showActual: Show? = null
     private var cancionesSetlist: List<SetlistMasterItem> = emptyList()
@@ -58,6 +61,7 @@ class ShowDetailActivity : AppCompatActivity() {
         }
 
         configurarCabecera()
+        progressBar = findViewById(R.id.progressBarShowDetail)
         configurarCarruselInstrumentos()
         configurarMatrizSetlist()
         observarViewModel()
@@ -178,6 +182,14 @@ class ShowDetailActivity : AppCompatActivity() {
         viewModel.error.observe(this) { error ->
             Toast.makeText(this, error, Toast.LENGTH_LONG).show()
         }
+
+        viewModel.isLoading.observe(this) { loading ->
+            mostrarLoading(loading)
+        }
+    }
+
+    private fun mostrarLoading(isLoading: Boolean) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun abrirDetalleInstrumento(instrumento: Instrumento) {

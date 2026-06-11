@@ -3,6 +3,7 @@ package com.catedra.apporgartistas.ui.fragments
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,10 +20,12 @@ class ShowSetlistFragment : Fragment(R.layout.fragment_show_setlist) {
 
     private lateinit var rvShowSetlists: RecyclerView
     private lateinit var adapter: ShowSetlistAdapter
+    private lateinit var progressBar: ProgressBar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        progressBar = view.findViewById(R.id.progressBarShowSetlist)
         configurarRecycler(view)
         observarViewModel()
 
@@ -62,5 +65,13 @@ class ShowSetlistFragment : Fragment(R.layout.fragment_show_setlist) {
                 if (mensaje == "Usuario no autenticado") Toast.LENGTH_SHORT else Toast.LENGTH_LONG
             ).show()
         }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            mostrarLoading(loading)
+        }
+    }
+
+    private fun mostrarLoading(isLoading: Boolean) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }

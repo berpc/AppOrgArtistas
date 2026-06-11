@@ -2,6 +2,8 @@ package com.catedra.apporgartistas.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -28,6 +30,7 @@ class ShowSetlistViewerActivity : AppCompatActivity() {
     private lateinit var tvInstrumento: TextView
     private lateinit var rvShowSetlistViewer: RecyclerView
     private lateinit var adapter: ShowSetlistViewerAdapter
+    private lateinit var progressBar: ProgressBar
 
     private var setlistMaster: List<SetlistMasterItem> = emptyList()
     private var pdfsPorSetlistItem: Map<String, PartituraCloud> = emptyMap()
@@ -77,6 +80,7 @@ class ShowSetlistViewerActivity : AppCompatActivity() {
         tvFechaShow = findViewById(R.id.tvFechaShowSetlistViewer)
         tvInstrumento = findViewById(R.id.tvInstrumentoShowSetlistViewer)
         rvShowSetlistViewer = findViewById(R.id.rvShowSetlistViewer)
+        progressBar = findViewById(R.id.progressBarShowSetlistViewer)
     }
 
     private fun configurarRecycler() {
@@ -135,6 +139,14 @@ class ShowSetlistViewerActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
         }
+
+        viewModel.isLoading.observe(this) { loading ->
+            mostrarLoading(loading)
+        }
+    }
+
+    private fun mostrarLoading(isLoading: Boolean) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun actualizarLista() {

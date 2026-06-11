@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +28,7 @@ class DirectorDashboardFragment : Fragment(R.layout.fragment_director_dashboard)
     private var agrupacionSeleccionadaParaBorrar: Agrupacion? = null
     private val viewModel: DirectorDashboardViewModel by viewModels()
     private lateinit var adapter: AgrupacionAdapter
+    private lateinit var progressBar: ProgressBar
 
     private val actionModeCallback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -56,6 +58,7 @@ class DirectorDashboardFragment : Fragment(R.layout.fragment_director_dashboard)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        progressBar = view.findViewById(R.id.progressBarDirectorDashboard)
         configurarRecyclerView(view)
         observarViewModel()
         configurarFab(view)
@@ -142,11 +145,19 @@ class DirectorDashboardFragment : Fragment(R.layout.fragment_director_dashboard)
         viewModel.mensaje.observe(viewLifecycleOwner) { msg ->
             Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
         }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            mostrarLoading(loading)
+        }
     }
 
     override fun onDestroyView() {
         actionMode?.finish()
         actionMode = null
         super.onDestroyView()
+    }
+
+    private fun mostrarLoading(isLoading: Boolean) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }

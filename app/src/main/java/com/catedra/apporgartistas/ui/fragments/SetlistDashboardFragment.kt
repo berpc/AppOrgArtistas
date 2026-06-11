@@ -13,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -43,6 +44,7 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
     private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var adapter: SetlistAdapter
     private lateinit var adapterInstrumentos: SetlistInstrumentoSuscriptoAdapter
+    private lateinit var progressBar: ProgressBar
     private var listaSetlistsCompleta: List<Setlist> = emptyList()
     private var textoBusquedaActual: String = ""
     private var actionMode: ActionMode? = null
@@ -87,6 +89,7 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
         (requireActivity() as AppCompatActivity).supportActionBar?.title =
             getString(R.string.title_dashboard_mis_setlists)
 
+        progressBar = view.findViewById(R.id.progressBarSetlistDashboard)
         configurarFabMenu(view)
         configurarBotonLogout(view)
         configurarRecyclerView(view)
@@ -307,6 +310,10 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
         viewModel.error.observe(viewLifecycleOwner) { mensaje ->
             Toast.makeText(requireContext(), mensaje, Toast.LENGTH_LONG).show()
         }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            mostrarLoading(loading)
+        }
     }
 
     private fun configurarBotonLogout(view: View) {
@@ -344,5 +351,9 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
         actionMode?.finish()
         actionMode = null
         super.onDestroyView()
+    }
+
+    private fun mostrarLoading(isLoading: Boolean) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }

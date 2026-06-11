@@ -45,10 +45,12 @@ class ShowDetailViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
 
-            cargarShowInterno()
-            cargarInstrumentosInterno()
-
-            _isLoading.value = false
+            try {
+                cargarShowInterno()
+                cargarInstrumentosInterno()
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
@@ -89,6 +91,8 @@ class ShowDetailViewModel : ViewModel() {
         val ordenAnterior = _canciones.value ?: emptyList()
 
         viewModelScope.launch {
+            _isLoading.value = true
+
             try {
                 showDetailRepository.actualizarSetlistMaster(
                     agrupacionId = agrupacionId,
@@ -101,12 +105,16 @@ class ShowDetailViewModel : ViewModel() {
             } catch (e: Exception) {
                 _error.value = "Error al actualizar orden: ${e.message}"
                 _canciones.value = ordenAnterior
+            } finally {
+                _isLoading.value = false
             }
         }
     }
 
     fun agregarInstrumento(nombre: String) {
         viewModelScope.launch {
+            _isLoading.value = true
+
             try {
                 val instrumento = Instrumento(
                     nombre = nombre,
@@ -123,6 +131,8 @@ class ShowDetailViewModel : ViewModel() {
                 cargarInstrumentosInterno()
             } catch (e: Exception) {
                 _error.value = "Error al agregar instrumento: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -156,6 +166,8 @@ class ShowDetailViewModel : ViewModel() {
 
     private fun guardarSetlistMaster(nuevaLista: List<SetlistMasterItem>) {
         viewModelScope.launch {
+            _isLoading.value = true
+
             try {
                 showDetailRepository.actualizarSetlistMaster(
                     agrupacionId = agrupacionId,
@@ -166,6 +178,8 @@ class ShowDetailViewModel : ViewModel() {
                 actualizarCanciones(nuevaLista)
             } catch (e: Exception) {
                 _error.value = "Error al guardar setlist: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }

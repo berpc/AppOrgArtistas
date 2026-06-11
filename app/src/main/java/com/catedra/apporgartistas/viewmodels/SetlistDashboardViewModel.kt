@@ -15,6 +15,7 @@ class SetlistDashboardViewModel : ViewModel() {
     private val authService = AuthService()
     private val notificationService = NotificationService()
     private val setlistSubscriptionRepository = SetlistSubscriptionRepository()
+    private var cargasPendientes = 0
 
     private val _setlists = MutableLiveData<List<Setlist>>()
     private val _setlistsInstrumentoSuscriptos = MutableLiveData<List<SetlistInstrumentoSuscripto>>()
@@ -55,6 +56,7 @@ class SetlistDashboardViewModel : ViewModel() {
 
     fun cargarSetlists() {
         val userId = getCurrentUserId()
+        cargasPendientes = 2
         _isLoading.value = true
 
         cargarSetlistsViejos(userId)
@@ -63,12 +65,16 @@ class SetlistDashboardViewModel : ViewModel() {
 
     fun ocultarSetlist(setlistId: String) {
         val userId = getCurrentUserId()
+        _isLoading.value = true
 
         setlistSubscriptionRepository.ocultarSetlist(
             userId = userId,
             setlistId = setlistId,
             onSuccess = { cargarSetlists() },
-            onError = {}
+            onError = {
+                _error.postValue("Error al borrar setlist.")
+                _isLoading.postValue(false)
+            }
         )
     }
 
@@ -81,11 +87,11 @@ class SetlistDashboardViewModel : ViewModel() {
             userId = userId,
             onSuccess = { listaCombinada ->
                 _setlists.postValue(listaCombinada)
-                _isLoading.postValue(false)
+                finalizarCargaDashboard()
             },
             onError = {
                 _error.postValue("Error al cargar tu repertorio.")
-                _isLoading.postValue(false)
+                finalizarCargaDashboard()
             }
         )
     }
@@ -95,11 +101,20 @@ class SetlistDashboardViewModel : ViewModel() {
             userId = userId,
             onSuccess = { lista ->
                 _setlistsInstrumentoSuscriptos.postValue(lista)
+                finalizarCargaDashboard()
             },
             onError = {
                 _setlistsInstrumentoSuscriptos.postValue(emptyList())
+                finalizarCargaDashboard()
             }
         )
+    }
+
+    private fun finalizarCargaDashboard() {
+        cargasPendientes = (cargasPendientes - 1).coerceAtLeast(0)
+        if (cargasPendientes == 0) {
+            _isLoading.postValue(false)
+        }
     }
 
     private fun manejarResultadoSuscripcion(resultado: ResultadoSuscripcionSetlist) {

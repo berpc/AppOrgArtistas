@@ -2,8 +2,10 @@ package com.catedra.apporgartistas.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -26,6 +28,7 @@ class InstrumentoSetlistViewerActivity : AppCompatActivity() {
     private lateinit var tvFechaShow: TextView
     private lateinit var tvInstrumento: TextView
     private lateinit var lvPartituras: ListView
+    private lateinit var progressBar: ProgressBar
 
     private var setlistMaster: List<SetlistMasterItem> = emptyList()
     private var pdfsPorSetlistItem: Map<String, PartituraCloud> = emptyMap()
@@ -57,6 +60,7 @@ class InstrumentoSetlistViewerActivity : AppCompatActivity() {
         tvFechaShow = findViewById(R.id.tvFechaShowViewer)
         tvInstrumento = findViewById(R.id.tvInstrumentoViewer)
         lvPartituras = findViewById(R.id.lvPartiturasInstrumentoViewer)
+        progressBar = findViewById(R.id.progressBarInstrumentoSetlistViewer)
 
         observarViewModel()
 
@@ -100,6 +104,14 @@ class InstrumentoSetlistViewerActivity : AppCompatActivity() {
                 Toast.LENGTH_LONG
             ).show()
         }
+
+        viewModel.isLoading.observe(this) { loading ->
+            mostrarLoading(loading)
+        }
+    }
+
+    private fun mostrarLoading(isLoading: Boolean) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun configurarLista() {

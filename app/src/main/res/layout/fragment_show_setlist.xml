@@ -37,4 +37,12 @@
         android:padding="16dp"
         tools:listitem="@layout/item_setlist" />
 
+    <ProgressBar
+        android:id="@+id/progressBarShowSetlist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
 </LinearLayout>

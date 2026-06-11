@@ -7,7 +7,9 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,6 +56,10 @@ class InstrumentoDetailActivity : AppCompatActivity() {
     private var pdfsLocales: MutableMap<String, PartituraCloud> = mutableMapOf()
     private var hayCambiosPendientes = false
     private var ignorarProximaActualizacionInstrumento = false
+    private lateinit var progressBar: ProgressBar
+    private var operacionesLoading = 0
+    private var showInicialRecibido = false
+    private var instrumentoInicialRecibido = false
 
     private val seleccionarPdfLocalLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -71,6 +77,7 @@ class InstrumentoDetailActivity : AppCompatActivity() {
         showId = intent.getStringExtra("SHOW_ID") ?: return finish()
         instrumentoId = intent.getStringExtra("INSTRUMENTO_ID") ?: return finish()
 
+        progressBar = findViewById(R.id.progressBarInstrumentoDetail)
         configurarBack()
         configurarBotonGuardar()
         configurarRecycler()
@@ -193,10 +200,18 @@ class InstrumentoDetailActivity : AppCompatActivity() {
     }
 
     private fun observarDatos() {
+        iniciarLoading()
+        iniciarLoading()
+
         showRepository.observarShow(
             agrupacionId = agrupacionId,
             showId = showId,
             onChange = { show ->
+                if (!showInicialRecibido) {
+                    showInicialRecibido = true
+                    finalizarLoading()
+                }
+
                 showActual = show
                 setlistMaster = show?.setlistMaster ?: emptyList()
 
@@ -204,6 +219,10 @@ class InstrumentoDetailActivity : AppCompatActivity() {
                 adapter.actualizarDatos(setlistMaster, pdfsLocales)
             },
             onError = {
+                if (!showInicialRecibido) {
+                    showInicialRecibido = true
+                    finalizarLoading()
+                }
                 Toast.makeText(this, "Error al observar show", Toast.LENGTH_SHORT).show()
             }
         )
@@ -213,6 +232,11 @@ class InstrumentoDetailActivity : AppCompatActivity() {
             showId = showId,
             instrumentoId = instrumentoId,
             onChange = { instrumento ->
+                if (!instrumentoInicialRecibido) {
+                    instrumentoInicialRecibido = true
+                    finalizarLoading()
+                }
+
                 if (instrumento == null) return@observarInstrumento
 
                 actualizarInstrumento(
@@ -228,6 +252,10 @@ class InstrumentoDetailActivity : AppCompatActivity() {
                 }
             },
             onError = {
+                if (!instrumentoInicialRecibido) {
+                    instrumentoInicialRecibido = true
+                    finalizarLoading()
+                }
                 Toast.makeText(this, "Error al observar instrumento", Toast.LENGTH_SHORT).show()
             }
         )
@@ -280,6 +308,7 @@ class InstrumentoDetailActivity : AppCompatActivity() {
         val nombreArchivo = obtenerNombreArchivo(uri)
 
         Toast.makeText(this, "Subiendo PDF...", Toast.LENGTH_SHORT).show()
+        iniciarLoading()
 
         cloudinaryManager.subirPartitura(
             fileUri = uri,
@@ -292,6 +321,7 @@ class InstrumentoDetailActivity : AppCompatActivity() {
                 )
 
                 asociarPartituraLocalmente(setlistItem, partitura)
+                finalizarLoading()
 
                 Toast.makeText(
                     this,
@@ -300,6 +330,7 @@ class InstrumentoDetailActivity : AppCompatActivity() {
                 ).show()
             },
             onError = { mensaje ->
+                finalizarLoading()
                 Toast.makeText(
                     this,
                     "Error al subir PDF: $mensaje",
@@ -323,6 +354,7 @@ class InstrumentoDetailActivity : AppCompatActivity() {
                     return@launch
                 }
 
+                iniciarLoading()
                 val partituras = instrumentoRepository.obtenerTodasLasPartiturasCloudDelUsuario(userId)
 
                 if (partituras.isEmpty()) {
@@ -350,6 +382,8 @@ class InstrumentoDetailActivity : AppCompatActivity() {
                     "Error al cargar partituras: ${e.message}",
                     Toast.LENGTH_LONG
                 ).show()
+            } finally {
+                finalizarLoading()
             }
         }
     }
@@ -404,6 +438,8 @@ class InstrumentoDetailActivity : AppCompatActivity() {
 
     private fun guardarCambiosPendientes() {
         lifecycleScope.launch {
+            iniciarLoading()
+
             try {
                 instrumentoRepository.guardarMapaPartiturasInstrumento(
                     agrupacionId = agrupacionId,
@@ -429,6 +465,8 @@ class InstrumentoDetailActivity : AppCompatActivity() {
                     "Error al guardar cambios: ${e.message}",
                     Toast.LENGTH_LONG
                 ).show()
+            } finally {
+                finalizarLoading()
             }
         }
     }
@@ -460,6 +498,8 @@ class InstrumentoDetailActivity : AppCompatActivity() {
     }
     private fun cargarOCrearCodigoCompartir() {
         lifecycleScope.launch {
+            iniciarLoading()
+
             try {
                 val directorId = authService.getCurrentUserId()
 
@@ -490,6 +530,8 @@ class InstrumentoDetailActivity : AppCompatActivity() {
                 ).show()
 
                 mostrarCodigoCompartir("")
+            } finally {
+                finalizarLoading()
             }
         }
     }
@@ -523,5 +565,17 @@ class InstrumentoDetailActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    private fun iniciarLoading() {
+        operacionesLoading++
+        progressBar.visibility = View.VISIBLE
+    }
+
+    private fun finalizarLoading() {
+        if (operacionesLoading > 0) {
+            operacionesLoading--
+        }
+        progressBar.visibility = if (operacionesLoading > 0) View.VISIBLE else View.GONE
     }
 }
