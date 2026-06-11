@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.catedra.apporgartistas.R
-import com.catedra.apporgartistas.ui.activities.MainActivity
+import com.catedra.apporgartistas.ui.activities.DashboardHostActivity
 import com.catedra.apporgartistas.ui.activities.RegisterActivity
 import com.catedra.apporgartistas.viewmodels.LoginState
 import com.catedra.apporgartistas.viewmodels.LoginViewModel
@@ -53,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
                         },
                         onComplete = {
                             // 3. Navegamos a la siguiente pantalla sin importar si el token falló o no
-                            startActivity(Intent(this, MainActivity::class.java))
+                            startActivity(Intent(this, DashboardHostActivity::class.java))
                             finish()
                         }
                     )

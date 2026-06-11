@@ -51,10 +51,6 @@
             android:name=".ui.activities.DashboardHostActivity"
             android:exported="false"/>
 
-        <activity
-            android:name=".ui.activities.SetlistDashboardActivity"
-            android:exported="false"/>
-
         <!-- Crear -->
         <activity
             android:name=".ui.activities.CreateSetlistActivity"
@@ -74,13 +70,10 @@
             android:name=".ui.activities.PdfViewerActivity"
             android:exported="false"
             android:parentActivityName=".ui.activities.SetlistDetailActivity"/>
-        <!-- Director Dashboard -->
-        <activity
-            android:name=".ui.activities.DirectorDashboardActivity"
-            android:exported="false" />
+        <!-- Shows Dashboard -->
         <activity android:name=".ui.activities.ShowsDashboardActivity"
             android:exported="false"
-            android:parentActivityName=".ui.activities.DirectorDashboardActivity" />
+            android:parentActivityName=".ui.activities.DashboardHostActivity" />
 
         <activity android:name=".ui.activities.ShowDetailActivity"
             android:exported="false"
@@ -88,7 +81,6 @@
         <activity android:name=".ui.activities.InstrumentoDetailActivity" />
 
         <activity android:name=".ui.activities.InstrumentoSetlistViewerActivity" />
-        <activity android:name=".ui.activities.ShowSetlistActivity" />
         <activity android:name=".ui.activities.ShowSetlistViewerActivity" />
 
         <!-- Firebase Messaging Service -->

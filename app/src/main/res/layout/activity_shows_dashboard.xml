@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#0F172A"
-    tools:context=".ui.activities.DirectorDashboardActivity">
+    tools:context=".ui.activities.ShowsDashboardActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
