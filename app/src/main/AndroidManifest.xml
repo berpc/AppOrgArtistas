@@ -48,6 +48,10 @@
 
         <!-- Dashboard -->
         <activity
+            android:name=".ui.activities.DashboardHostActivity"
+            android:exported="false"/>
+
+        <activity
             android:name=".ui.activities.SetlistDashboardActivity"
             android:exported="false"/>
 

@@ -6,7 +6,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.catedra.apporgartistas.activities.LoginActivity
 import com.catedra.apporgartistas.viewmodels.MainViewModel
-import kotlin.jvm.java
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,7 +20,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
         } else {
             // Usuario con sesión -> Lo mandamos al Dashboard principal
-            startActivity(Intent(this, SetlistDashboardActivity::class.java))
+            startActivity(Intent(this, DashboardHostActivity::class.java))
         }
 
         // 2. Destruimos esta Activity

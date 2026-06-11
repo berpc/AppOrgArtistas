@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_dashboard"
+    app:startDestination="@id/item_1">
+
+    <fragment
+        android:id="@+id/item_1"
+        android:name="com.catedra.apporgartistas.ui.fragments.SetlistDashboardFragment"
+        android:label="@string/tv_dashboard_mis_setlists"
+        tools:layout="@layout/fragment_setlist_dashboard" />
+
+    <fragment
+        android:id="@+id/item_2"
+        android:name="com.catedra.apporgartistas.ui.fragments.DirectorDashboardFragment"
+        android:label="Director"
+        tools:layout="@layout/fragment_director_dashboard" />
+
+    <fragment
+        android:id="@+id/nav_show_setlist"
+        android:name="com.catedra.apporgartistas.ui.fragments.ShowSetlistFragment"
+        android:label="Shows"
+        tools:layout="@layout/fragment_show_setlist" />
+
+</navigation>
