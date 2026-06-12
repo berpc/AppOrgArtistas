@@ -233,26 +233,35 @@
     <string name="text_dashboard_codigo_format">Codice: %1$s</string>
     <plurals name="cantidad_shows_agrupacion">
         <item quantity="one">%d show</item>
+        <item quantity="many">%d show</item>
         <item quantity="other">%d show</item>
     </plurals>
     <plurals name="cantidad_partituras_setlist">
         <item quantity="one">%d partitura</item>
+        <item quantity="many">%d partiture</item>
         <item quantity="other">%d partiture</item>
     </plurals>
     <plurals name="cantidad_items_seleccionados">
         <item quantity="one">%d selezionato</item>
+        <item quantity="many">%d selezionati</item>
         <item quantity="other">%d selezionati</item>
     </plurals>
     <plurals name="message_dashboard_confirmar_borrado_multiple_setlists">
         <item quantity="one">Verrà eliminata %d setlist.</item>
+        <item quantity="many">Verranno eliminate %d setlist.</item>
         <item quantity="other">Verranno eliminate %d setlist.</item>
     </plurals>
     <plurals name="message_shows_confirmar_borrado_multiple">
         <item quantity="one">Verrà eliminato %d show. Le sue partiture e i suoi strumenti saranno persi.</item>
+        <item quantity="many">Verranno eliminati %d show. Le loro partiture e i loro strumenti saranno persi.</item>
         <item quantity="other">Verranno eliminati %d show. Le loro partiture e i loro strumenti saranno persi.</item>
     </plurals>
     <plurals name="message_director_confirmar_borrado_multiple_agrupaciones">
         <item quantity="one">Verrà eliminato %d gruppo. Tutti i suoi show saranno persi.</item>
+        <item quantity="many">Verranno eliminati %d gruppi. Tutti i loro show saranno persi.</item>
         <item quantity="other">Verranno eliminati %d gruppi. Tutti i loro show saranno persi.</item>
     </plurals>
+    <string name="notif_channel_id">musicos_updates</string>
+    <string name="notif_channel_name">Aggiornamenti musicisti</string>
+    <string name="notif_channel_desc">Notifiche quando qualcuno si unisce alle tue setlist</string>
 </resources>

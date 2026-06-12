@@ -256,4 +256,8 @@
             <item quantity="other">%d groups will be deleted. All their shows will be lost.</item>
         </plurals>
 
+        <string name="notif_channel_id">musicos_updates</string>
+        <string name="notif_channel_name">Musician Updates</string>
+        <string name="notif_channel_desc">Notifications when someone joins your setlists</string>
+
 </resources>
