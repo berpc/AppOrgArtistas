@@ -1,8 +1,10 @@
 package com.catedra.apporgartistas.viewmodels
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.Setlist
 import com.catedra.apporgartistas.data.models.SetlistInstrumentoSuscripto
 import com.catedra.apporgartistas.data.repositories.ResultadoSuscripcionSetlist
@@ -28,20 +30,20 @@ class SetlistDashboardViewModel : ViewModel() {
     val isLoading: LiveData<Boolean> = _isLoading
     val suscripcionExitosa: LiveData<Boolean> = _suscripcionExitosa
 
-    private val _error = MutableLiveData<String>()
-    val error: LiveData<String> = _error
+    private val _error = MutableLiveData<Int?>()
+    val error: LiveData<Int?> = _error
 
     fun unirseASetlistConCodigo(codigo: String) {
         val userId = getCurrentUserId()
         val codigoNormalizado = codigo.trim().uppercase()
 
         if (codigoNormalizado.isBlank()) {
-            _error.postValue("Ingres\u00e1 un c\u00f3digo.")
+            mostrarError(R.string.message_dashboard_ingresa_un_codigo)
             return
         }
 
         if (userId.isBlank()) {
-            _error.postValue("Usuario no autenticado.")
+            mostrarError(R.string.message_dashboard_usuario_no_autenticado)
             return
         }
 
@@ -64,15 +66,19 @@ class SetlistDashboardViewModel : ViewModel() {
     }
 
     fun ocultarSetlist(setlistId: String) {
+        ocultarSetlists(listOf(setlistId))
+    }
+
+    fun ocultarSetlists(setlistIds: List<String>) {
         val userId = getCurrentUserId()
         _isLoading.value = true
 
-        setlistSubscriptionRepository.ocultarSetlist(
+        setlistSubscriptionRepository.ocultarSetlists(
             userId = userId,
-            setlistId = setlistId,
+            setlistIds = setlistIds,
             onSuccess = { cargarSetlists() },
             onError = {
-                _error.postValue("Error al borrar setlist.")
+                mostrarError(R.string.message_dashboard_error_borrar_setlist)
                 _isLoading.postValue(false)
             }
         )
@@ -90,7 +96,7 @@ class SetlistDashboardViewModel : ViewModel() {
                 finalizarCargaDashboard()
             },
             onError = {
-                _error.postValue("Error al cargar tu repertorio.")
+                mostrarError(R.string.message_dashboard_error_cargar_repertorio)
                 finalizarCargaDashboard()
             }
         )
@@ -132,34 +138,42 @@ class SetlistDashboardViewModel : ViewModel() {
             }
 
             ResultadoSuscripcionSetlist.SetlistPropio -> {
-                _error.postValue("Este setlist ya es tuyo, no necesitas unirte.")
+                mostrarError(R.string.message_dashboard_setlist_propio)
             }
 
             ResultadoSuscripcionSetlist.YaSuscripto -> {
-                _error.postValue("Ya est\u00e1s suscrito a este setlist.")
+                mostrarError(R.string.message_dashboard_ya_suscripto)
             }
 
             ResultadoSuscripcionSetlist.CodigoNoEncontrado -> {
-                _error.postValue("C\u00f3digo inv\u00e1lido o setlist no encontrado.")
+                mostrarError(R.string.message_dashboard_codigo_no_encontrado)
             }
 
             ResultadoSuscripcionSetlist.CodigoInactivo -> {
-                _error.postValue("Este c\u00f3digo ya no est\u00e1 activo.")
+                mostrarError(R.string.message_dashboard_codigo_inactivo)
             }
 
             ResultadoSuscripcionSetlist.CodigoIncompleto -> {
-                _error.postValue("El c\u00f3digo est\u00e1 incompleto.")
+                mostrarError(R.string.message_dashboard_codigo_incompleto)
             }
 
             ResultadoSuscripcionSetlist.ErrorBusqueda -> {
-                _error.postValue("Error al buscar el c\u00f3digo.")
+                mostrarError(R.string.message_dashboard_error_buscar_codigo)
             }
 
             ResultadoSuscripcionSetlist.ErrorSuscripcion -> {
-                _error.postValue("Error al suscribirse al setlist.")
+                mostrarError(R.string.message_dashboard_error_suscripcion)
             }
         }
 
         _isLoading.postValue(false)
+    }
+
+    fun limpiarError() {
+        _error.value = null
+    }
+
+    private fun mostrarError(@StringRes mensajeResId: Int) {
+        _error.postValue(mensajeResId)
     }
 }

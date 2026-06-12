@@ -3,13 +3,12 @@ package com.catedra.apporgartistas.ui.fragments
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputFilter
 import android.text.TextWatcher
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -17,7 +16,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ActionMode
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -32,6 +30,7 @@ import com.catedra.apporgartistas.ui.adapters.SetlistAdapter
 import com.catedra.apporgartistas.ui.adapters.SetlistInstrumentoSuscriptoAdapter
 import com.catedra.apporgartistas.viewmodels.LoginViewModel
 import com.catedra.apporgartistas.viewmodels.SetlistDashboardViewModel
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
@@ -43,10 +42,11 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
     private lateinit var adapter: SetlistAdapter
     private lateinit var adapterInstrumentos: SetlistInstrumentoSuscriptoAdapter
     private lateinit var progressBar: ProgressBar
+    private lateinit var selectionToolbar: MaterialToolbar
     private var listaSetlistsCompleta: List<Setlist> = emptyList()
     private var textoBusquedaActual: String = ""
-    private var actionMode: ActionMode? = null
-    private var setlistSeleccionadoParaBorrar: Setlist? = null
+    // Guardamos solo IDs para que la seleccion sobreviva a rebindeos del RecyclerView.
+    private val setlistsSeleccionadosIds = mutableSetOf<String>()
     private var isFabExpanded = false
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -57,37 +57,13 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
         }
     }
 
-    private val actionModeCallback = object : ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            mode.menuInflater.inflate(R.menu.menu_borrar_setlist, menu)
-            mode.title = getString(R.string.title_dashboard_1_seleccionado)
-            return true
-        }
-
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean = false
-
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return when (item.itemId) {
-                R.id.action_delete -> {
-                    confirmarBorrado(mode)
-                    true
-                }
-                else -> false
-            }
-        }
-
-        override fun onDestroyActionMode(mode: ActionMode) {
-            actionMode = null
-            setlistSeleccionadoParaBorrar = null
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity).supportActionBar?.title =
             getString(R.string.title_dashboard_mis_setlists)
 
         progressBar = view.findViewById(R.id.progressBarSetlistDashboard)
+        configurarSelectionToolbar(view)
         configurarFabMenu(view)
         configurarRecyclerView(view)
         observarViewModel()
@@ -115,6 +91,25 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
             }
         } else {
             obtenerYGuardarToken()
+        }
+    }
+
+    private fun configurarSelectionToolbar(view: View) {
+        selectionToolbar = view.findViewById(R.id.selection_toolbar_setlists)
+        for (index in 0 until selectionToolbar.menu.size()) {
+            selectionToolbar.menu.getItem(index).icon?.setTint(Color.WHITE)
+        }
+        selectionToolbar.setNavigationOnClickListener {
+            limpiarSeleccionSetlists()
+        }
+        selectionToolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_delete -> {
+                    confirmarBorradoSeleccionado()
+                    true
+                }
+                else -> false
+            }
         }
     }
 
@@ -248,7 +243,9 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
         adapter = SetlistAdapter(
             setlists = emptyList(),
             onItemClick = { setlistSeleccionado ->
-                if (actionMode == null) {
+                if (haySeleccionActiva()) {
+                    alternarSeleccionSetlist(setlistSeleccionado)
+                } else {
                     val intent = Intent(requireContext(), SetlistDetailActivity::class.java).apply {
                         putExtra("SETLIST_COMPLETO", setlistSeleccionado)
                     }
@@ -256,11 +253,7 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
                 }
             },
             onItemLongClick = { setlistSeleccionado ->
-                if (actionMode == null) {
-                    setlistSeleccionadoParaBorrar = setlistSeleccionado
-                    actionMode = (requireActivity() as AppCompatActivity)
-                        .startSupportActionMode(actionModeCallback)
-                }
+                alternarSeleccionSetlist(setlistSeleccionado)
             }
         )
 
@@ -289,7 +282,9 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
     private fun observarViewModel() {
         viewModel.setlists.observe(viewLifecycleOwner) { listaSetlists ->
             listaSetlistsCompleta = listaSetlists
+            setlistsSeleccionadosIds.retainAll(listaSetlists.map { it.id }.toSet())
             filtrarSetlists(textoBusquedaActual)
+            actualizarEstadoSeleccionSetlists()
         }
 
         viewModel.suscripcionExitosa.observe(viewLifecycleOwner) { exito ->
@@ -304,8 +299,11 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
             }
         }
 
-        viewModel.error.observe(viewLifecycleOwner) { mensaje ->
-            Toast.makeText(requireContext(), mensaje, Toast.LENGTH_LONG).show()
+        viewModel.error.observe(viewLifecycleOwner) { mensajeResId ->
+            if (mensajeResId != null) {
+                Toast.makeText(requireContext(), getString(mensajeResId), Toast.LENGTH_LONG).show()
+                viewModel.limpiarError()
+            }
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
@@ -313,30 +311,69 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
         }
     }
 
-    private fun confirmarBorrado(mode: ActionMode) {
-        val setlist = setlistSeleccionadoParaBorrar ?: return
+    private fun haySeleccionActiva(): Boolean {
+        return setlistsSeleccionadosIds.isNotEmpty()
+    }
+
+    private fun alternarSeleccionSetlist(setlist: Setlist) {
+        if (setlist.id.isBlank()) return
+
+        if (setlistsSeleccionadosIds.contains(setlist.id)) {
+            setlistsSeleccionadosIds.remove(setlist.id)
+        } else {
+            setlistsSeleccionadosIds.add(setlist.id)
+        }
+
+        actualizarEstadoSeleccionSetlists()
+    }
+
+    private fun actualizarEstadoSeleccionSetlists() {
+        val cantidad = setlistsSeleccionadosIds.size
+        adapter.actualizarSeleccion(setlistsSeleccionadosIds)
+
+        if (cantidad == 0) {
+            selectionToolbar.visibility = View.GONE
+            return
+        }
+
+        selectionToolbar.title = resources.getQuantityString(
+            R.plurals.cantidad_items_seleccionados,
+            cantidad,
+            cantidad
+        )
+        selectionToolbar.visibility = View.VISIBLE
+    }
+
+    private fun limpiarSeleccionSetlists() {
+        setlistsSeleccionadosIds.clear()
+        actualizarEstadoSeleccionSetlists()
+    }
+
+    private fun confirmarBorradoSeleccionado() {
+        val idsSeleccionados = setlistsSeleccionadosIds.toList()
+        val cantidad = idsSeleccionados.size
+
+        if (cantidad == 0) return
 
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.title_dashboard_borrar_setlist))
             .setMessage(
-                getString(
-                    R.string.message_dashboard_estas_seguro_de_que_queres_borrar,
-                    setlist.titulo
+                resources.getQuantityString(
+                    R.plurals.message_dashboard_confirmar_borrado_multiple_setlists,
+                    cantidad,
+                    cantidad
                 )
             )
             .setPositiveButton(getString(R.string.btn_dashboard_borrar)) { _, _ ->
-                viewModel.ocultarSetlist(setlist.id)
-                mode.finish()
+                viewModel.ocultarSetlists(idsSeleccionados)
+                limpiarSeleccionSetlists()
             }
-            .setNegativeButton(getString(R.string.btn_dashboard_cancelar)) { _, _ ->
-                mode.finish()
-            }
+            .setNegativeButton(getString(R.string.btn_dashboard_cancelar), null)
             .show()
     }
 
     override fun onDestroyView() {
-        actionMode?.finish()
-        actionMode = null
+        setlistsSeleccionadosIds.clear()
         super.onDestroyView()
     }
 

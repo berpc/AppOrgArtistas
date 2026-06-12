@@ -1,8 +1,10 @@
 package com.catedra.apporgartistas.viewmodels
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.Agrupacion
 import com.catedra.apporgartistas.services.AuthService
 import com.catedra.apporgartistas.utils.AgrupacionRepository
@@ -21,8 +23,8 @@ class DashboardHostViewModel(
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> get() = _isLoading
 
-    private val _error = MutableLiveData<String>()
-    val error: LiveData<String> get() = _error
+    private val _error = MutableLiveData<Int?>()
+    val error: LiveData<Int?> get() = _error
 
     fun cargarAgrupacionesDirector() {
         _isLoading.value = true
@@ -33,8 +35,8 @@ class DashboardHostViewModel(
                 _agrupaciones.value = lista
                 _isLoading.value = false
             },
-            onFailure = { exception ->
-                _error.value = "Error al cargar agrupaciones: ${exception.message}"
+            onFailure = {
+                mostrarError(R.string.message_director_error_cargar)
                 _isLoading.value = false
             }
         )
@@ -43,13 +45,21 @@ class DashboardHostViewModel(
 
         if (listener == null) {
             _agrupaciones.value = emptyList()
-            _error.value = "Usuario no autenticado"
+            mostrarError(R.string.message_director_usuario_no_autenticado)
             _isLoading.value = false
         }
     }
 
     fun cerrarSesion() {
         authService.logout()
+    }
+
+    fun limpiarError() {
+        _error.value = null
+    }
+
+    private fun mostrarError(@StringRes mensajeResId: Int) {
+        _error.value = mensajeResId
     }
 
     override fun onCleared() {

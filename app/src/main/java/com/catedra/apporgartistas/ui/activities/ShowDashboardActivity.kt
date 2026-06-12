@@ -1,9 +1,8 @@
 package com.catedra.apporgartistas.ui.activities
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -17,65 +16,36 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.Show
-import com.catedra.apporgartistas.ui.adapters.AgrupacionAdapter
 import com.catedra.apporgartistas.ui.adapters.ShowAdapter
 import com.catedra.apporgartistas.viewmodels.ShowsDashboardViewModel
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-
 
 class ShowsDashboardActivity : AppCompatActivity() {
 
     private val viewModel: ShowsDashboardViewModel by viewModels()
     private lateinit var adapter: ShowAdapter
     private lateinit var progressBar: ProgressBar
+    private lateinit var selectionToolbar: MaterialToolbar
 
-    private var actionMode: androidx.appcompat.view.ActionMode? = null
-    private var showSeleccionado: Show? = null
+    private var showsActuales: List<Show> = emptyList()
+    // Guardamos IDs seleccionados para alternar seleccion sin modificar el modelo Show.
+    private val showsSeleccionadosIds = mutableSetOf<String>()
 
-    // Variables que recibimos por Intent
     private lateinit var agrupacionId: String
     private lateinit var agrupacionNombre: String
 
-    private val actionModeCallback = object : androidx.appcompat.view.ActionMode.Callback {
-        override fun onCreateActionMode(mode: androidx.appcompat.view.ActionMode, menu: Menu): Boolean {
-            mode.menuInflater.inflate(R.menu.menu_editar_borrar, menu) // El menú nuevo
-            mode.title = "1 seleccionado"
-            return true
-        }
-
-        override fun onPrepareActionMode(mode: androidx.appcompat.view.ActionMode, menu: Menu): Boolean = false
-
-        override fun onActionItemClicked(mode: androidx.appcompat.view.ActionMode, item: MenuItem): Boolean {
-            return when (item.itemId) {
-                R.id.action_edit -> {
-                    mostrarDialogoShow(showSeleccionado)
-                    mode.finish()
-                    true
-                }
-                R.id.action_delete -> {
-                    confirmarBorrado(mode)
-                    true
-                }
-                else -> false
-            }
-        }
-
-        override fun onDestroyActionMode(mode: androidx.appcompat.view.ActionMode) {
-            actionMode = null
-            showSeleccionado = null
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_shows_dashboard) // Tu nuevo layout
+        setContentView(R.layout.activity_shows_dashboard)
 
-        // Recuperar datos pasados por Intent
         agrupacionId = intent.getStringExtra("AGRUPACION_ID") ?: return finish()
-        agrupacionNombre = intent.getStringExtra("AGRUPACION_NOMBRE") ?: "Agrupación"
+        agrupacionNombre = intent.getStringExtra("AGRUPACION_NOMBRE")
+            ?: getString(R.string.default_show_agrupacion)
 
         progressBar = findViewById(R.id.progressBarShowsDashboard)
         configurarCabecera()
+        configurarSelectionToolbar()
         configurarFab()
         configurarRecyclerView()
         observarViewModel()
@@ -85,49 +55,74 @@ class ShowsDashboardActivity : AppCompatActivity() {
 
     private fun configurarCabecera() {
         val tvBack = findViewById<TextView>(R.id.tvBackHeader)
-        tvBack.text = "← $agrupacionNombre"
+        tvBack.text = getString(R.string.text_shows_back_agrupacion, agrupacionNombre)
         tvBack.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed() // Vuelve a la pantalla anterior
+            onBackPressedDispatcher.onBackPressed()
+        }
+    }
+
+    private fun configurarSelectionToolbar() {
+        selectionToolbar = findViewById(R.id.selection_toolbar_shows)
+        tintarIconosSelectionToolbar()
+        selectionToolbar.setNavigationOnClickListener {
+            limpiarSeleccionShows()
+        }
+        selectionToolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_edit -> {
+                    editarShowSeleccionado()
+                    true
+                }
+                R.id.action_delete -> {
+                    confirmarBorradoSeleccionado()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun tintarIconosSelectionToolbar() {
+        for (index in 0 until selectionToolbar.menu.size()) {
+            selectionToolbar.menu.getItem(index).icon?.setTint(Color.WHITE)
         }
     }
 
     private fun configurarFab() {
         findViewById<FloatingActionButton>(R.id.fab_add_show).setOnClickListener {
-            mostrarDialogoShow(null) // Pasamos null porque es un show nuevo
+            mostrarDialogoShow(null)
         }
     }
 
-    // Usamos el mismo diálogo para CREAR y EDITAR
     private fun mostrarDialogoShow(showExistente: Show?) {
-        val context = this
         val isEditMode = showExistente != null
 
-        // Layout por código para poner dos EditTexts
-        val layout = LinearLayout(context).apply {
+        val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(50, 40, 50, 10)
         }
 
-        val inputNombre = EditText(context).apply {
-            hint = "Nombre del show (Ej: Concierto Aniversario)"
+        val inputNombre = EditText(this).apply {
+            hint = getString(R.string.hint_show_nombre)
             setText(showExistente?.nombre ?: "")
         }
 
-        val inputFecha = EditText(context).apply {
-            hint = "Fecha (Opcional - Ej: 24/09/2026)"
+        val inputFecha = EditText(this).apply {
+            hint = getString(R.string.hint_show_fecha)
             setText(showExistente?.fecha ?: "")
         }
 
         layout.addView(inputNombre)
         layout.addView(inputFecha)
 
-        AlertDialog.Builder(context)
-            .setTitle(if (isEditMode) "Editar Show" else "Nuevo Show")
+        AlertDialog.Builder(this)
+            .setTitle(if (isEditMode) R.string.title_show_editar else R.string.title_show_nuevo)
             .setView(layout)
-            .setPositiveButton(if (isEditMode) "Guardar" else "Crear") { _, _ ->
+            .setPositiveButton(
+                if (isEditMode) getString(R.string.btn_common_guardar) else getString(R.string.btn_common_crear)
+            ) { _, _ ->
                 val nombre = inputNombre.text.toString().trim()
-                var fecha: String? = inputFecha.text.toString().trim()
-                if (fecha!!.isEmpty()) fecha = null // Convertimos vacío a null
+                val fecha = inputFecha.text.toString().trim().takeIf { it.isNotEmpty() }
 
                 if (nombre.isNotEmpty()) {
                     if (isEditMode) {
@@ -136,34 +131,30 @@ class ShowsDashboardActivity : AppCompatActivity() {
                         viewModel.crearShow(agrupacionId, nombre, fecha)
                     }
                 } else {
-                    Toast.makeText(context, "El nombre es obligatorio", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        getString(R.string.message_show_nombre_obligatorio),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-            .setNegativeButton("Cancelar", null)
-            .show()
-    }
-
-    private fun confirmarBorrado(mode: androidx.appcompat.view.ActionMode) {
-        val show = showSeleccionado ?: return
-        AlertDialog.Builder(this)
-            .setTitle("Borrar Show")
-            .setMessage("¿Querés borrar '${show.nombre}'? Se perderán todas sus partituras e instrumentos.")
-            .setPositiveButton("Borrar") { _, _ ->
-                viewModel.borrarShow(agrupacionId, show.id)
-                mode.finish()
-            }
-            .setNegativeButton("Cancelar") { _, _ -> mode.finish() }
+            .setNegativeButton(getString(R.string.btn_common_cancelar), null)
             .show()
     }
 
     private fun observarViewModel() {
         viewModel.shows.observe(this) { lista ->
-            android.util.Log.d("SHOWS_DEBUG", "Activity recibió ${lista.size} shows")
+            showsActuales = lista
+            showsSeleccionadosIds.retainAll(lista.map { it.id }.toSet())
             adapter.actualizarLista(lista)
+            actualizarEstadoSeleccionShows()
         }
 
-        viewModel.mensaje.observe(this) { msg ->
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        viewModel.mensaje.observe(this) { mensajeResId ->
+            if (mensajeResId != null) {
+                Toast.makeText(this, getString(mensajeResId), Toast.LENGTH_SHORT).show()
+                viewModel.limpiarMensaje()
+            }
         }
 
         viewModel.isLoading.observe(this) { loading ->
@@ -182,23 +173,91 @@ class ShowsDashboardActivity : AppCompatActivity() {
         adapter = ShowAdapter(
             shows = emptyList(),
             onItemClick = { show ->
-                if (actionMode == null) {
-                    val intent = Intent(this, ShowDetailActivity::class.java)
-
-                    intent.putExtra("SHOW_ID", show.id)
-                    intent.putExtra("AGRUPACION_ID", agrupacionId)
-
+                if (haySeleccionActiva()) {
+                    alternarSeleccionShow(show)
+                } else {
+                    val intent = Intent(this, ShowDetailActivity::class.java).apply {
+                        putExtra("SHOW_ID", show.id)
+                        putExtra("AGRUPACION_ID", agrupacionId)
+                    }
                     startActivity(intent)
                 }
             },
             onItemLongClick = { show ->
-                if (actionMode == null) {
-                    showSeleccionado = show
-                    // Esto abre la barra superior de borrado que configuraste arriba
-                    actionMode = startSupportActionMode(actionModeCallback)
-                }
+                alternarSeleccionShow(show)
             }
         )
         rvShows.adapter = adapter
+    }
+
+    private fun haySeleccionActiva(): Boolean {
+        return showsSeleccionadosIds.isNotEmpty()
+    }
+
+    private fun alternarSeleccionShow(show: Show) {
+        if (show.id.isBlank()) return
+
+        if (showsSeleccionadosIds.contains(show.id)) {
+            showsSeleccionadosIds.remove(show.id)
+        } else {
+            showsSeleccionadosIds.add(show.id)
+        }
+
+        actualizarEstadoSeleccionShows()
+    }
+
+    private fun actualizarEstadoSeleccionShows() {
+        val cantidad = showsSeleccionadosIds.size
+        adapter.actualizarSeleccion(showsSeleccionadosIds)
+
+        if (cantidad == 0) {
+            selectionToolbar.visibility = View.GONE
+            return
+        }
+
+        selectionToolbar.title = resources.getQuantityString(
+            R.plurals.cantidad_items_seleccionados,
+            cantidad,
+            cantidad
+        )
+        selectionToolbar.menu.findItem(R.id.action_edit)?.isVisible = cantidad == 1
+        selectionToolbar.menu.findItem(R.id.action_delete)?.isVisible = true
+        selectionToolbar.visibility = View.VISIBLE
+    }
+
+    private fun limpiarSeleccionShows() {
+        showsSeleccionadosIds.clear()
+        actualizarEstadoSeleccionShows()
+    }
+
+    private fun editarShowSeleccionado() {
+        val show = showsActuales.firstOrNull { it.id == showsSeleccionadosIds.firstOrNull() }
+            ?: return
+
+        limpiarSeleccionShows()
+        mostrarDialogoShow(show)
+    }
+
+    private fun confirmarBorradoSeleccionado() {
+        val idsSeleccionados = showsSeleccionadosIds.toList()
+        val cantidad = idsSeleccionados.size
+
+        if (cantidad == 0) return
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.title_show_borrar)
+            .setMessage(
+                resources.getQuantityString(
+                    R.plurals.message_shows_confirmar_borrado_multiple,
+                    cantidad,
+                    cantidad
+                )
+            )
+            .setPositiveButton(getString(R.string.btn_common_borrar)) { _, _ ->
+                viewModel.borrarShows(agrupacionId, idsSeleccionados)
+                limpiarSeleccionShows()
+            }
+            .setNegativeButton(getString(R.string.btn_common_cancelar), null)
+            .show()
     }
 }

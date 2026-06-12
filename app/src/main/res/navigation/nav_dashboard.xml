@@ -14,13 +14,13 @@
     <fragment
         android:id="@+id/item_2"
         android:name="com.catedra.apporgartistas.ui.fragments.DirectorDashboardFragment"
-        android:label="Director"
+        android:label="@string/nav_dashboard_director"
         tools:layout="@layout/fragment_director_dashboard" />
 
     <fragment
         android:id="@+id/nav_show_setlist"
         android:name="com.catedra.apporgartistas.ui.fragments.ShowSetlistFragment"
-        android:label="Shows"
+        android:label="@string/nav_dashboard_shows"
         tools:layout="@layout/fragment_show_setlist" />
 
 </navigation>

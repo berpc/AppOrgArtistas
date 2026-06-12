@@ -2,6 +2,7 @@ package com.catedra.apporgartistas.utils
 
 import com.catedra.apporgartistas.data.models.Agrupacion
 import com.catedra.apporgartistas.services.AuthService
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
@@ -103,8 +104,31 @@ class AgrupacionRepository(
         onSuccess: () -> Unit,
         onFailure: () -> Unit
     ) {
-        agrupacionesRef.document(id)
-            .update("active", false)
+        softDeleteAgrupaciones(
+            ids = listOf(id),
+            onSuccess = onSuccess,
+            onFailure = onFailure
+        )
+    }
+
+    fun softDeleteAgrupaciones(
+        ids: List<String>,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val idsValidos = ids.distinct().filter { it.isNotBlank() }
+
+        if (idsValidos.isEmpty()) {
+            onSuccess()
+            return
+        }
+
+        val tareas = idsValidos.map { id ->
+            agrupacionesRef.document(id)
+                .update("active", false)
+        }
+
+        Tasks.whenAll(tareas)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onFailure() }
     }

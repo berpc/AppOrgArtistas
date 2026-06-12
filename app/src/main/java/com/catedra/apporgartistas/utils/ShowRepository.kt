@@ -2,7 +2,9 @@ package com.catedra.apporgartistas.utils
 
 import android.util.Log
 import com.catedra.apporgartistas.data.models.Show
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class ShowRepository {
 
@@ -15,10 +17,10 @@ class ShowRepository {
         agrupacionId: String,
         onSuccess: (List<Show>) -> Unit,
         onFailure: (Exception) -> Unit
-    ) {
+    ): ListenerRegistration {
         Log.d("SHOWS_DEBUG", "Cargando shows de agrupacionId=$agrupacionId")
 
-        getShowsRef(agrupacionId)
+        return getShowsRef(agrupacionId)
             .whereEqualTo("active", true)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
@@ -41,6 +43,23 @@ class ShowRepository {
                 Log.d("SHOWS_DEBUG", "Lista convertida size=${lista.size}")
 
                 onSuccess(lista)
+            }
+    }
+
+    fun escucharCantidadShowsActivos(
+        agrupacionId: String,
+        onSuccess: (Int) -> Unit,
+        onFailure: (Exception) -> Unit
+    ): ListenerRegistration {
+        return getShowsRef(agrupacionId)
+            .whereEqualTo("active", true)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    onFailure(error)
+                    return@addSnapshotListener
+                }
+
+                onSuccess(snapshot?.size() ?: 0)
             }
     }
 
@@ -79,8 +98,33 @@ class ShowRepository {
         onSuccess: () -> Unit,
         onFailure: () -> Unit
     ) {
-        getShowsRef(agrupacionId).document(showId)
-            .update("active", false)
+        borrarShows(
+            agrupacionId = agrupacionId,
+            showIds = listOf(showId),
+            onSuccess = onSuccess,
+            onFailure = onFailure
+        )
+    }
+
+    fun borrarShows(
+        agrupacionId: String,
+        showIds: List<String>,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val idsValidos = showIds.distinct().filter { it.isNotBlank() }
+
+        if (idsValidos.isEmpty()) {
+            onSuccess()
+            return
+        }
+
+        val tareas = idsValidos.map { showId ->
+            getShowsRef(agrupacionId).document(showId)
+                .update("active", false)
+        }
+
+        Tasks.whenAll(tareas)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onFailure() }
     }

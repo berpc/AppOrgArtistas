@@ -18,8 +18,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.activities.CameraActivity
+import com.catedra.apporgartistas.ui.adapters.ArchivoLocalAdapter
 import com.catedra.apporgartistas.viewmodels.CreateSetlistViewModel
 import com.google.android.gms.location.LocationServices
 
@@ -27,10 +30,14 @@ class CreateSetlistActivity : AppCompatActivity() {
 
     private val viewModel: CreateSetlistViewModel by viewModels()
 
+    private companion object {
+        const val EXTRA_PDF_CAPTURADO = "PDF_CAPTURADO"
+    }
+
 
     private val abrirCamara = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            val uriString = result.data?.getStringExtra(getString(R.string.default_create_pdf_capturado))
+            val uriString = result.data?.getStringExtra(EXTRA_PDF_CAPTURADO)
             if (uriString != null) {
                 // Al sacar foto, le damos un nombre genérico para que el usuario lo cambie
                 pedirNombrePartitura(uriString.toUri(),
@@ -54,7 +61,7 @@ class CreateSetlistActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_setlist)
 
-        supportActionBar?.title = "Nuevo Setlist"
+        supportActionBar?.title = getString(R.string.title_activity_create_nuevo_setlist)
 
         val btnSubirLocal = findViewById<Button>(R.id.btnSubirLocal)
         val btnGuardar = findViewById<Button>(R.id.btnGuardarSetlist)
@@ -66,6 +73,11 @@ class CreateSetlistActivity : AppCompatActivity() {
         val tvCoordenadas = findViewById<TextView>(R.id.tvCoordenadas)
         val btnUbicacion = findViewById<Button>(R.id.btnUbicacion)
         val progressBar = findViewById<ProgressBar>(R.id.progressBarCreateSetlist)
+        val rvArchivos = findViewById<RecyclerView>(R.id.rvArchivosSeleccionados)
+        val archivosAdapter = ArchivoLocalAdapter()
+
+        rvArchivos.layoutManager = LinearLayoutManager(this)
+        rvArchivos.adapter = archivosAdapter
 
         val fusedLocationClient =
             LocationServices.getFusedLocationProviderClient(this)
@@ -76,12 +88,9 @@ class CreateSetlistActivity : AppCompatActivity() {
 
         //Observamos el ViewModel para actualizar la pantalla
         viewModel.archivosSeleccionados.observe(this) { listaArchivos ->
-            if (listaArchivos.isNotEmpty()) {
-                tvArchivos.text = getString(
-                    R.string.message_create_archivos_listos_para_subir,
-                    listaArchivos.size
-                )
-            }
+            archivosAdapter.actualizarLista(listaArchivos)
+            tvArchivos.visibility = if (listaArchivos.isEmpty()) View.VISIBLE else View.GONE
+            rvArchivos.visibility = if (listaArchivos.isEmpty()) View.GONE else View.VISIBLE
         }
 
         viewModel.guardadoExitoso.observe(this) { exito ->
@@ -100,6 +109,7 @@ class CreateSetlistActivity : AppCompatActivity() {
             btnGuardar.isEnabled = !loading
             btnSubirLocal.isEnabled = !loading
             btnCamara.isEnabled = !loading
+            btnUbicacion.isEnabled = !loading
         }
 
         btnUbicacion.setOnClickListener {
@@ -119,8 +129,11 @@ class CreateSetlistActivity : AppCompatActivity() {
 
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
-                    tvCoordenadas.text =
-                        "Lat: ${location.latitude} | Lng: ${location.longitude}"
+                    tvCoordenadas.text = getString(
+                        R.string.coordenadas,
+                        location.latitude.toString(),
+                        location.longitude.toString()
+                    )
                 } else {
                     Toast.makeText(
                         this,

@@ -133,8 +133,11 @@ class DashboardHostActivity : AppCompatActivity() {
             drawerProgress.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        viewModel.error.observe(this) { mensaje ->
-            Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
+        viewModel.error.observe(this) { mensajeResId ->
+            if (mensajeResId != null) {
+                Toast.makeText(this, getString(mensajeResId), Toast.LENGTH_SHORT).show()
+                viewModel.limpiarError()
+            }
         }
     }
 

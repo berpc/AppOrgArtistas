@@ -11,7 +11,6 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 
 data class NotificacionDirector(
     val tokenDirector: String,
@@ -61,32 +60,21 @@ class SetlistSubscriptionRepository(
         onSuccess: (List<Setlist>) -> Unit,
         onError: () -> Unit
     ) {
-        val queryPropios = firestore.collectionGroup("setlists")
-            .whereEqualTo("ownerId", userId)
+        firestore.collection("usuarios")
+            .document(userId)
+            .collection("setlists")
+            .whereEqualTo("isActive", true)
             .get()
-
-        val querySuscripciones = firestore.collectionGroup("setlists")
-            .whereArrayContains("suscriptores", userId)
-            .get()
-
-        Tasks.whenAllSuccess<QuerySnapshot>(queryPropios, querySuscripciones)
-            .addOnSuccessListener { results ->
-                val listaCombinada = mutableListOf<Setlist>()
-
-                for (snapshot in results) {
-                    for (document in snapshot) {
-                        val setlist = document.toObject(Setlist::class.java)
-
-                        if (setlist.id.isBlank()) {
-                            setlist.id = document.id
+            .addOnSuccessListener { snapshot ->
+                val setlistsActivos = snapshot.documents.mapNotNull { document ->
+                    document.toObject(Setlist::class.java)?.apply {
+                        if (id.isBlank()) {
+                            id = document.id
                         }
-
-                        listaCombinada.add(setlist)
                     }
-                }
+                }.sortedByDescending { it.fechaCreacion }
 
-                listaCombinada.sortByDescending { it.fechaCreacion }
-                onSuccess(listaCombinada)
+                onSuccess(setlistsActivos)
             }
             .addOnFailureListener { exception ->
                 Log.e("Dashboard", "Error al cargar los setlists viejos", exception)
@@ -238,15 +226,40 @@ class SetlistSubscriptionRepository(
         onSuccess: () -> Unit,
         onError: () -> Unit
     ) {
-        firestore.collection("usuarios").document(userId)
-            .collection("setlists").document(setlistId)
-            .update("isActive", false)
+        ocultarSetlists(
+            userId = userId,
+            setlistIds = listOf(setlistId),
+            onSuccess = onSuccess,
+            onError = onError
+        )
+    }
+
+    fun ocultarSetlists(
+        userId: String,
+        setlistIds: List<String>,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
+        val idsValidos = setlistIds.distinct().filter { it.isNotBlank() }
+
+        if (idsValidos.isEmpty()) {
+            onSuccess()
+            return
+        }
+
+        val tareas = idsValidos.map { setlistId ->
+            firestore.collection("usuarios").document(userId)
+                .collection("setlists").document(setlistId)
+                .update("isActive", false)
+        }
+
+        Tasks.whenAll(tareas)
             .addOnSuccessListener {
-                Log.d("Dashboard", "Setlist ocultado con exito")
+                Log.d("Dashboard", "Setlists ocultados con exito: ${idsValidos.size}")
                 onSuccess()
             }
             .addOnFailureListener { exception ->
-                Log.e("Dashboard", "Error al ocultar setlist", exception)
+                Log.e("Dashboard", "Error al ocultar setlists", exception)
                 onError()
             }
     }

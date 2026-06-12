@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.SetlistInstrumentoSuscripto
 
 class SetlistInstrumentoSuscriptoAdapter(
@@ -41,21 +42,28 @@ class SetlistInstrumentoSuscriptoAdapter(
         holder.layout.removeAllViews()
 
         val tvTitulo = TextView(context).apply {
-            text = item.nombreShow.ifBlank { "Show sin nombre" }
+            text = item.nombreShow.ifBlank {
+                context.getString(R.string.default_dashboard_show_sin_nombre)
+            }
             setTextColor(Color.WHITE)
             textSize = 18f
             gravity = Gravity.START
         }
 
         val tvInstrumento = TextView(context).apply {
-            text = "Instrumento: ${item.nombreInstrumento.ifBlank { "Sin nombre" }}"
+            text = context.getString(
+                R.string.text_dashboard_instrumento_format,
+                item.nombreInstrumento.ifBlank {
+                    context.getString(R.string.default_dashboard_sin_nombre)
+                }
+            )
             setTextColor(Color.parseColor("#CBD5E1"))
             textSize = 14f
             setPadding(0, 8, 0, 0)
         }
 
         val tvCodigo = TextView(context).apply {
-            text = "Código: ${item.codigo}"
+            text = context.getString(R.string.text_dashboard_codigo_format, item.codigo)
             setTextColor(Color.parseColor("#94A3B8"))
             textSize = 13f
             setPadding(0, 6, 0, 0)

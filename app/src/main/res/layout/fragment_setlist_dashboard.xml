@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
-            android:hint="Buscar setlist..."
+            android:hint="@string/hint_dashboard_buscar_setlist"
             app:backgroundTint="#1E293B"
             app:itemIconTint="#94A3B8"
             app:itemTextColor="#94A3B8" />
@@ -112,7 +112,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="Código"
+                    android:text="@string/label_dashboard_codigo"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold"
@@ -150,7 +150,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="Crear"
+                    android:text="@string/label_dashboard_crear"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold"
@@ -176,11 +176,24 @@
 
     </LinearLayout>
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/selection_toolbar_setlists"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="top"
+        android:background="@color/surface_dark"
+        android:elevation="12dp"
+        android:visibility="gone"
+        app:menu="@menu/menu_borrar_setlist"
+        app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
+        app:navigationIconTint="@color/text_primary"
+        app:titleTextColor="@color/text_primary" />
+
     <com.google.android.material.search.SearchView
         android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:hint="Escribe para buscar..."
+        android:hint="@string/hint_dashboard_escribe_para_buscar"
         app:backgroundTint="#0F172A"
         app:layout_anchor="@id/search_bar" />
 

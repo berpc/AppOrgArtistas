@@ -1,150 +1,210 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F172A">
+    android:background="@color/bg_dark">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true">
 
-        <!-- Título -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/title_activity_create_nuevo_setlist"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF" />
-
-        <!-- Subtitulo -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/subtitle_activity_create_carga_tus_partituras_y_datos_del_evento"
-            android:textSize="14sp"
-            android:textColor="#94A3B8" />
-
-        <!-- Nombre -->
-        <EditText
-            android:id="@+id/etSetlistTitulo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:hint="@string/hint_create_nombre_del_setlist"
-            android:inputType="textCapWords"
-            android:background="@drawable/bg_edittext"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#94A3B8"
-            android:padding="14dp" />
-
-        <!-- Grupo -->
-        <EditText
-            android:id="@+id/etNombreGrupo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="@string/hint_create_grupo_o_artista"
-            android:inputType="textCapWords"
-            android:background="@drawable/bg_edittext"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#94A3B8"
-            android:padding="14dp" />
-
-        <!-- Ubicación -->
-        <EditText
-            android:id="@+id/etUbicacion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="#6B4EFF"
-            android:hint="@string/text_create_ubicacion_del_evento"
-            android:inputType="textCapSentences"
-            android:background="@drawable/bg_edittext"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#94A3B8"
-            android:padding="14dp" />
-
-        <TextView
-            android:id="@+id/tvCoordenadas"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Lat: - | Lng: -"
-            android:textColor="#60A5FA"/>
-        <!-- Botón ubicacion -->
-        <Button
-            android:id="@+id/btnUbicacion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/btn_activity_create_obtener_ubicacion_actual"
-            android:backgroundTint="#2563EB"
-            android:textColor="#FFFFFF"/>
-
-        <!-- Botón PDF + camara -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="32dp">
 
-            <Button
-                android:id="@+id/btnSubirLocal"
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/title_activity_create_nuevo_setlist"
+                android:textColor="@color/text_primary"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/subtitle_activity_create_organiza_tus_canciones"
+                android:textColor="@color/text_secondary"
+                android:textSize="15sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="@color/surface_dark"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        style="@style/Widget.AppOrgArtistas.CreateSectionTitle"
+                        android:text="@string/title_create_informacion" />
+
+                    <EditText
+                        android:id="@+id/etSetlistTitulo"
+                        style="@style/Widget.AppOrgArtistas.CreateInput"
+                        android:layout_marginTop="14dp"
+                        android:hint="@string/hint_create_nombre_del_setlist"
+                        android:inputType="textCapWords" />
+
+                    <EditText
+                        android:id="@+id/etNombreGrupo"
+                        style="@style/Widget.AppOrgArtistas.CreateInput"
+                        android:layout_marginTop="12dp"
+                        android:hint="@string/hint_create_grupo_o_artista"
+                        android:inputType="textCapWords" />
+
+                    <EditText
+                        android:id="@+id/etUbicacion"
+                        style="@style/Widget.AppOrgArtistas.CreateInput"
+                        android:layout_marginTop="12dp"
+                        android:hint="@string/text_create_ubicacion_del_evento"
+                        android:inputType="textCapSentences" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/surface_dark"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        style="@style/Widget.AppOrgArtistas.CreateSectionTitle"
+                        android:text="@string/title_create_material" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSubirLocal"
+                            style="@style/Widget.AppOrgArtistas.CreateSecondaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_create_agregar_pdf" />
+
+                        <Space
+                            android:layout_width="10dp"
+                            android:layout_height="1dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCamara"
+                            style="@style/Widget.AppOrgArtistas.CreateSecondaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_create_sacar_foto" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvArchivosSeleccionados"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/empty_create_materiales"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvArchivosSeleccionados"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="gone"
+                        tools:itemCount="3"
+                        tools:listitem="@layout/item_archivo_local" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/surface_dark"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        style="@style/Widget.AppOrgArtistas.CreateSectionTitle"
+                        android:text="@string/title_create_ubicacion" />
+
+                    <TextView
+                        android:id="@+id/tvCoordenadas"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/default_create_coordenadas"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnUbicacion"
+                        style="@style/Widget.AppOrgArtistas.CreateSecondaryButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="14dp"
+                        android:text="@string/btn_create_usar_ubicacion_actual" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGuardarSetlist"
+                android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_weight="1"
-                android:text="@string/btn_create_subirpdf"
-                android:backgroundTint="#2563EB"
-                android:textColor="#FFFFFF"/>
+                android:layout_marginTop="24dp"
+                android:text="@string/btn_activity_create_crear_setlist"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/primary_blue"
+                app:cornerRadius="8dp" />
 
-            <Space
-                android:layout_width="8dp"
-                android:layout_height="wrap_content"/>
+            <ProgressBar
+                android:id="@+id/progressBarCreateSetlist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
 
-            <Button
-                android:id="@+id/btnCamara"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="1"
-                android:text="@string/btn_create_subircamara"
-                android:backgroundTint="#EA580C"
-                android:textColor="#FFFFFF"/>
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <!-- Texto archivo -->
-        <TextView
-            android:id="@+id/tvArchivosSeleccionados"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/btn_activity_create_ningun_archivo_seleccionado"
-            android:textColor="#94A3B8" />
-
-        <!-- Botón guardar -->
-        <Button
-            android:id="@+id/btnGuardarSetlist"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="32dp"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:backgroundTint="#16A34A"
-            android:textColor="#FFFFFF" />
-
-        <ProgressBar
-            android:id="@+id/progressBarCreateSetlist"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:visibility="gone" />
-
-    </LinearLayout>
-
-</ScrollView>
+</FrameLayout>

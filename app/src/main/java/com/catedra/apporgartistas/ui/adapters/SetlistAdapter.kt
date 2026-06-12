@@ -1,5 +1,7 @@
 package com.catedra.apporgartistas.ui.adapters
 
+import android.graphics.Color
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.catedra.apporgartistas.R
 import com.catedra.apporgartistas.data.models.Setlist
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.imageview.ShapeableImageView
 
 class SetlistAdapter(
@@ -16,8 +19,10 @@ class SetlistAdapter(
     private val onItemLongClick: (Setlist) -> Unit
 ) : RecyclerView.Adapter<SetlistAdapter.ViewHolder>() {
 
+    private val selectedIds = mutableSetOf<String>()
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        // 1. Enlazamos los nuevos IDs exactos de tu XML
+        val card: MaterialCardView = view as MaterialCardView
         val textHeader: TextView = view.findViewById(R.id.text_header)
         val textSubhead: TextView = view.findViewById(R.id.text_subhead)
         val avatarImage: ImageView = view.findViewById(R.id.avatar_image)
@@ -32,15 +37,21 @@ class SetlistAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val setlist = setlists[position]
+        val cantidadPartituras = setlist.partituras.size
+        val textoPartituras = holder.itemView.resources.getQuantityString(
+            R.plurals.cantidad_partituras_setlist,
+            cantidadPartituras,
+            cantidadPartituras
+        )
 
-        // 2. Asignamos el título principal
         holder.textHeader.text = setlist.titulo
+        holder.textSubhead.text = holder.itemView.context.getString(
+            R.string.subtitle_setlist_grupo_partituras,
+            setlist.nombreGrupo,
+            textoPartituras
+        )
+        aplicarSeleccion(holder, selectedIds.contains(setlist.id))
 
-        // 3. Combinamos la información restante en el subtítulo (Grupo + Cantidad)
-        // Usamos el símbolo "•" para separar visualmente los datos
-        holder.textSubhead.text = "${setlist.nombreGrupo} • ${setlist.partituras.size} partituras"
-
-        // EVENTOS DE CLIC
         holder.itemView.setOnClickListener {
             onItemClick(setlist)
         }
@@ -56,5 +67,28 @@ class SetlistAdapter(
     fun actualizarLista(nuevaLista: List<Setlist>) {
         setlists = nuevaLista
         notifyDataSetChanged()
+    }
+
+    fun actualizarSeleccion(nuevosSeleccionados: Set<String>) {
+        selectedIds.clear()
+        selectedIds.addAll(nuevosSeleccionados)
+        notifyDataSetChanged()
+    }
+
+    private fun aplicarSeleccion(holder: ViewHolder, seleccionado: Boolean) {
+        // El adapter solo pinta la seleccion; la pantalla decide que IDs estan seleccionados.
+        holder.card.setCardBackgroundColor(
+            Color.parseColor(if (seleccionado) "#DBEAFE" else "#FFFFFF")
+        )
+        holder.card.strokeColor = Color.parseColor(if (seleccionado) "#2563EB" else "#FFFFFF")
+        holder.card.strokeWidth = if (seleccionado) 2.dp(holder.itemView) else 0
+    }
+
+    private fun Int.dp(view: View): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            this.toFloat(),
+            view.resources.displayMetrics
+        ).toInt()
     }
 }

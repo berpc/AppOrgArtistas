@@ -1,13 +1,16 @@
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardAgrupacion"
     android:layout_width="match_parent"
     android:layout_height="130dp"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="0dp">
+    app:cardElevation="0dp"
+    app:strokeWidth="0dp"
+    app:strokeColor="@android:color/transparent">
+
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -16,13 +19,20 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/bg_agrupacion_card"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/bg_agrupacion_card" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#80000000" />
+
+        <View
+            android:id="@+id/viewSelectionOverlayAgrupacion"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#662563EB"
+            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,10 +44,10 @@
                 android:id="@+id/tvNombreAgrupacion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nombre agrupación"
                 android:textColor="@android:color/white"
                 android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="Iglesia Central" />
 
             <Space
                 android:layout_width="match_parent"
@@ -45,12 +55,12 @@
                 android:layout_weight="1" />
 
             <TextView
-                android:id="@+id/tvCantidadIntegrantes"
+                android:id="@+id/tvCantidadShows"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="5 integrantes"
                 android:textColor="@android:color/white"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                tools:text="3 shows" />
 
         </LinearLayout>
 
