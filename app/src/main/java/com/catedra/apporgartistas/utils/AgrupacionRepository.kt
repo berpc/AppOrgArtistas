@@ -40,10 +40,10 @@ class AgrupacionRepository(
     fun listenToAgrupacionesActivasDelDirector(
         onSuccess: (List<Agrupacion>) -> Unit,
         onFailure: (Exception) -> Unit
-    ) {
-        val userId = currentUserId ?: return
+    ): ListenerRegistration? {
+        val userId = currentUserId ?: return null
 
-        agrupacionesRef
+        return agrupacionesRef
             .whereEqualTo("directorId", userId)
             .whereEqualTo("active", true)
             .addSnapshotListener { snapshot, error ->

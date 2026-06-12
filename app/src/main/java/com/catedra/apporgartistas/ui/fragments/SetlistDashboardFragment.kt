@@ -11,7 +11,6 @@ import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -25,7 +24,6 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.catedra.apporgartistas.R
-import com.catedra.apporgartistas.activities.LoginActivity
 import com.catedra.apporgartistas.data.models.Setlist
 import com.catedra.apporgartistas.ui.activities.CreateSetlistActivity
 import com.catedra.apporgartistas.ui.activities.InstrumentoSetlistViewerActivity
@@ -91,7 +89,6 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
 
         progressBar = view.findViewById(R.id.progressBarSetlistDashboard)
         configurarFabMenu(view)
-        configurarBotonLogout(view)
         configurarRecyclerView(view)
         observarViewModel()
         verificarPermisoNotificaciones()
@@ -313,16 +310,6 @@ class SetlistDashboardFragment : Fragment(R.layout.fragment_setlist_dashboard) {
 
         viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
             mostrarLoading(loading)
-        }
-    }
-
-    private fun configurarBotonLogout(view: View) {
-        val btnLogout = view.findViewById<Button>(R.id.btnLogout)
-        btnLogout.setOnClickListener {
-            loginViewModel.logout()
-            startActivity(Intent(requireContext(), LoginActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            })
         }
     }
 

@@ -5,10 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.catedra.apporgartistas.data.models.Agrupacion
 import com.catedra.apporgartistas.utils.AgrupacionRepository
+import com.google.firebase.firestore.ListenerRegistration
 
 class DirectorDashboardViewModel : ViewModel() {
 
     private val agrupacionRepository = AgrupacionRepository()
+    private var agrupacionesListener: ListenerRegistration? = null
 
     private val _agrupaciones = MutableLiveData<List<Agrupacion>>()
     val agrupaciones: LiveData<List<Agrupacion>> get() = _agrupaciones
@@ -21,8 +23,9 @@ class DirectorDashboardViewModel : ViewModel() {
 
     fun cargarAgrupaciones() {
         _isLoading.value = true
+        agrupacionesListener?.remove()
 
-        agrupacionRepository.listenToAgrupacionesActivasDelDirector(
+        agrupacionesListener = agrupacionRepository.listenToAgrupacionesActivasDelDirector(
             onSuccess = { lista ->
                 _agrupaciones.value = lista
                 _isLoading.value = false
@@ -32,6 +35,12 @@ class DirectorDashboardViewModel : ViewModel() {
                 _isLoading.value = false
             }
         )
+
+        if (agrupacionesListener == null) {
+            _agrupaciones.value = emptyList()
+            _mensaje.value = "Usuario no autenticado"
+            _isLoading.value = false
+        }
     }
 
     fun crearAgrupacion(nombre: String) {
@@ -64,5 +73,10 @@ class DirectorDashboardViewModel : ViewModel() {
                 _isLoading.value = false
             }
         )
+    }
+
+    override fun onCleared() {
+        agrupacionesListener?.remove()
+        super.onCleared()
     }
 }
